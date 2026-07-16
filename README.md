@@ -58,19 +58,18 @@ En **Authentication → URL Configuration**:
 
 ### 3.4. Magic link (login por email)
 
-En **Authentication → Email Templates → Magic Link**, cambiá el link para que
-use `token_hash` y apunte a nuestra ruta `/auth/confirm`:
+**No hay que tocar nada.** Funciona con la plantilla de email por defecto de
+Supabase: el login pide el link con `emailRedirectTo` apuntando a
+`/auth/callback`, Supabase verifica y redirige ahí con `?code=`, y esa ruta
+canjea el código por la sesión (misma mecánica que Google OAuth).
 
-```html
-<a href="{{ .SiteURL }}/auth/confirm?token_hash={{ .TokenHash }}&type=email&next={{ .RedirectTo }}">
-  Entrar a ClubTeam
-</a>
-```
+> Supabase solo permite **editar** las plantillas de email si conectás un SMTP
+> propio (SendGrid, Resend, etc.). Por eso no dependemos de eso.
 
-Con esto el flujo de magic link funciona con el manejo de sesión server-side,
-y `{{ .RedirectTo }}` hace que al entrar por un link de invitación
-(`/join/[codigo]`) vuelvas a esa pantalla después del login en vez de caer
-en el dashboard.
+**Límite a tener en cuenta:** el servicio de email incluido de Supabase tiene
+un tope bajo de envíos por hora (sirve para probar, no para producción real).
+Cuando el proyecto crezca, conectar un SMTP propio en
+**Authentication → Emails → SMTP Settings**.
 
 ### 3.5. Google OAuth
 

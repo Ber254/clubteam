@@ -41,9 +41,10 @@ function LoginForm() {
     const { error } = await supabase.auth.signInWithOtp({
       email,
       options: {
-        // Llega a la plantilla de email como {{ .RedirectTo }} y nuestra
-        // ruta /auth/confirm la usa para volver al destino original.
-        emailRedirectTo: `${window.location.origin}${next}`,
+        // Apuntamos a /auth/callback (igual que Google): Supabase verifica el
+        // link, redirige acá con ?code= y ahí lo canjeamos por la sesión.
+        // Así funciona con la plantilla de email POR DEFECTO, sin SMTP propio.
+        emailRedirectTo: `${window.location.origin}/auth/callback?next=${encodeURIComponent(next)}`,
         // Solo al registrarse creamos la cuenta; "Entrar" es solo login.
         shouldCreateUser: esRegistro,
         // El nombre viaja como metadata y el trigger lo usa para el perfil.
