@@ -434,15 +434,26 @@
     if (ultimoPartido?.dia) return "Los del " + ultimoPartido.dia;
     return "La banda";
   }
+  // El grupo invisible ("banda"): se forma solo con los que se anotan a los
+  // partidos y es el dueño del muro. Nadie lo crea a mano.
   function guardarBanda() {
-    if (anotados.length >= 2) {
-      banda = {
-        nombre: nombreBanda(),
-        jugadores: anotados.map(a => ({ n: a.n, rol: a.rol })),
-        // Los nombres de equipo quedan para el próximo partido de la banda
-        nombresEquipos: nombresEquipos ? { ...nombresEquipos } : banda?.nombresEquipos,
-      };
+    if (anotados.length < 2) return;
+    const delPartido = anotados.map(a => ({ n: a.n, rol: a.rol }));
+
+    if (!banda) {
+      // Primer partido: nace la banda, bautizada por el lugar o el día
+      banda = { nombre: nombreBanda(), jugadores: delPartido };
+    } else {
+      // Los que se anotan SE SUMAN. Nadie se cae de la banda por faltar
+      // a un partido: una vez que jugaste con ellos, sos de la banda.
+      delPartido.forEach(j => {
+        const ya = banda.jugadores.find(x => x.n === j.n);
+        if (ya) ya.rol = j.rol;
+        else banda.jugadores.push(j);
+      });
     }
+    // Los nombres de equipo quedan para el próximo partido de la banda
+    if (nombresEquipos) banda.nombresEquipos = { ...nombresEquipos };
   }
   function setConvocatoria(v) {
     convocatoria = v;
@@ -583,6 +594,9 @@
       aviso.innerHTML = `📣 CT ya les avisó a los <strong>${banda.jugadores.length}</strong> de <strong>${banda.nombre}</strong>. El link es por si se suma gente nueva.`;
     } else {
       aviso.style.display = "none";
+      // "Gente nueva": nace otra banda (los del laburo aparte de los de la facu)
+      banda = null;
+      nombresEquipos = null;
     }
 
     anotados.length = 0;
