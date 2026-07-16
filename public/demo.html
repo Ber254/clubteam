@@ -115,9 +115,7 @@
   <!-- MURAL: la HOME. Cada partido es un evento: lo que viene y lo que fue. -->
   <section id="mural" class="screen active">
     <div class="stack">
-      <div class="center">
-        <h2 id="muralTitulo">📖 El muro de Los del Miércoles</h2>
-      </div>
+      <div class="center" id="muralTituloWrap"></div>
 
       <div>
         <p class="label">🔜 Lo que viene</p>
@@ -440,8 +438,12 @@
     const delPartido = anotados.map(a => ({ n: a.n, rol: a.rol }));
 
     if (!banda) {
-      // Primer partido: nace la banda, bautizada por el lugar o el día
-      banda = { nombre: nombreBanda(), jugadores: delPartido };
+      // Primer partido: nace la banda. Si ya le pusiste nombre a mano,
+      // manda el tuyo; si no, la bautiza el lugar o el día.
+      banda = {
+        nombre: nombreMuroEditadoAMano ? nombreMuroDemo : nombreBanda(),
+        jugadores: delPartido,
+      };
     } else {
       // Los que se anotan SE SUMAN. Nadie se cae de la banda por faltar
       // a un partido: una vez que jugaste con ellos, sos de la banda.
@@ -464,9 +466,7 @@
     // El muro es la home: la banda se consolida sola al volver acá
     if (id === "mural") {
       guardarBanda();
-      if (banda) {
-        document.getElementById("muralTitulo").textContent = `📖 El muro de ${banda.nombre}`;
-      }
+      renderMuralTitulo();
       renderMural();
     }
     // Nueva iteración del flujo de creación: rota la frase de "Donde sea"
@@ -1197,6 +1197,50 @@
     { fecha: "mié 24 jun", res: "Perdimos 1-5", figura: "⚽ Fer (el del honor)", anecdota: "Mejor no hablar de esa noche 🙈", coment: 4 },
   ];
 
+  // El nombre de la banda lo puede cambiar CUALQUIERA del grupo (no solo el
+  // que lo creó): el grupo es de todos. Edición inline, sin prompt.
+  let editandoBanda = false;
+  let nombreMuroDemo = "Los del Miércoles"; // hasta que nazca la banda
+  let nombreMuroEditadoAMano = false; // si lo bautizaste vos, no lo pisamos
+  const nombreDelMuro = () => (banda ? banda.nombre : nombreMuroDemo);
+
+  function renderMuralTitulo() {
+    const wrap = document.getElementById("muralTituloWrap");
+    wrap.innerHTML = editandoBanda
+      ? `<div style="display:flex; gap:8px; align-items:center; justify-content:center;">
+          <input id="editNombreBanda" value="${nombreDelMuro().replace(/"/g, "&quot;")}" maxlength="30"
+            onkeydown="keyNombreBanda(event)" onblur="guardarNombreBanda()"
+            style="max-width:260px; min-width:0; padding:6px 10px; border:1px solid var(--verde-acento);
+                   border-radius:8px; font-size:17px; font-weight:700; text-align:center; outline:none;" />
+          <button class="mini up" style="margin-left:0;" onmousedown="event.preventDefault()" onclick="guardarNombreBanda()" title="Guardar">✓</button>
+        </div>`
+      : `<h2 style="display:inline-flex; align-items:center; gap:8px;">
+          <span>📖 El muro de ${nombreDelMuro()}</span>
+          <button class="mini" style="margin-left:0;" onclick="renombrarBanda()" title="Cambiarle el nombre">✏️</button>
+        </h2>`;
+  }
+  function renombrarBanda() {
+    editandoBanda = true;
+    renderMuralTitulo();
+    const inp = document.getElementById("editNombreBanda");
+    if (inp) { inp.focus(); inp.select(); }
+  }
+  function guardarNombreBanda() {
+    if (!editandoBanda) return; // ya se guardó
+    const inp = document.getElementById("editNombreBanda");
+    const val = inp ? inp.value.trim().slice(0, 30) : "";
+    if (val) {
+      if (banda) banda.nombre = val;
+      else { nombreMuroDemo = val; nombreMuroEditadoAMano = true; }
+    }
+    editandoBanda = false;
+    renderMuralTitulo();
+  }
+  function keyNombreBanda(ev) {
+    if (ev.key === "Enter") { ev.preventDefault(); guardarNombreBanda(); }
+    if (ev.key === "Escape") { editandoBanda = false; renderMuralTitulo(); }
+  }
+
   function renderMural() {
     const p = muralProximo;
     const faltan = Math.max(0, p.minimo - p.anotados);
@@ -1275,6 +1319,7 @@
 
   renderMiRol();
   renderFecha();
+  renderMuralTitulo();
   renderMural();
 </script>
 </body>
