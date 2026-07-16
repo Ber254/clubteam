@@ -112,34 +112,11 @@
 <div class="banner">DEMO · flujo creación de partido (UC) · datos de ejemplo</div>
 <div class="app">
 
-  <!-- INICIO -->
-  <section id="inicio" class="screen active">
+  <!-- MURAL: la HOME. Cada partido es un evento: lo que viene y lo que fue. -->
+  <section id="mural" class="screen active">
     <div class="stack">
-      <svg class="goal" viewBox="0 0 320 170" fill="none" stroke="#2d6a4f" stroke-width="2.5">
-        <defs><pattern id="net" width="9" height="9" patternUnits="userSpaceOnUse"><path d="M9 0H0V9" stroke="#2d6a4f" stroke-width="0.7" opacity="0.4"/></pattern></defs>
-        <rect x="128" y="8" width="64" height="22" fill="url(#net)"/>
-        <path d="M14 30 H306" stroke-linecap="round"/>
-        <circle cx="128" cy="30" r="2.5" fill="#2d6a4f" stroke="none"/><circle cx="192" cy="30" r="2.5" fill="#2d6a4f" stroke="none"/>
-        <path d="M104 30 V64 H216 V30"/><path d="M54 30 V122 H266 V30"/>
-        <circle cx="160" cy="94" r="2.5" fill="#2d6a4f" stroke="none"/><path d="M131 122 Q160 146 189 122" stroke-linecap="round"/>
-      </svg>
       <div class="center">
-        <h1>¿Armamos un partido?</h1>
-        <p class="sub">Sin registro: creás, compartís el link y a jugar.</p>
-        <p class="sub" id="inicioBanda" style="display:none; margin-top:6px; color:var(--verde-acento); font-weight:500;"></p>
-      </div>
-      <button class="btn btn-primary" onclick="go('crear')">+ Crear partido</button>
-      <button class="btn btn-outline" onclick="go('mural')">📖 El muro de la banda</button>
-      <p class="sub center">¿Ya tenés cuenta? <button class="link" onclick="alert('(Demo) Acá entrás con email/Google y recuperás tus partidos, bandas e historial en cualquier dispositivo.')">Entrar</button></p>
-    </div>
-  </section>
-
-  <!-- MURAL: el log de partidos, cada uno un evento -->
-  <section id="mural" class="screen">
-    <div class="stack">
-      <button class="link" onclick="go('inicio')">← Volver</button>
-      <div>
-        <h2>📖 El muro de Los del Miércoles</h2>
+        <h2 id="muralTitulo">📖 El muro de Los del Miércoles</h2>
         <p class="sub">Cada partido es un evento. Los que vienen, para calentar la previa; los que fueron, para recordar.</p>
       </div>
 
@@ -154,13 +131,15 @@
         <p class="label">🏆 Ya jugados</p>
         <div id="muralPasados" class="stack"></div>
       </div>
+
+      <p class="sub center">¿Ya tenés cuenta? <button class="link" onclick="alert('(Demo) Acá entrás con email/Google y recuperás tus partidos, bandas e historial en cualquier dispositivo.')">Entrar</button></p>
     </div>
   </section>
 
   <!-- CREAR PARTIDO -->
   <section id="crear" class="screen">
     <div class="stack">
-      <button class="link" onclick="go('inicio')">← Volver</button>
+      <button class="link" onclick="go('mural')">← Volver</button>
       <div>
         <h2>Nuevo partido</h2>
         <p class="sub">Fecha, lugar y cuántos tienen que ser para que se juegue.</p>
@@ -238,7 +217,7 @@
   <!-- PARTIDO CREADO -->
   <section id="creado" class="screen">
     <div class="stack">
-      <button class="link" onclick="go('inicio')">← Inicio</button>
+      <button class="link" onclick="go('mural')">← Inicio</button>
       <div class="center">
         <div style="font-size:36px;" id="emoji">🎉</div>
         <h2 id="tituloCreado">¡Convocatoria abierta!</h2>
@@ -382,7 +361,7 @@
         <button class="btn btn-primary" style="margin-top:10px;" onclick="copiarResultado(this)">Copiar mensaje</button>
       </div>
 
-      <button class="btn btn-outline" onclick="go('inicio')">🏠 Ir al inicio</button>
+      <button class="btn btn-outline" onclick="go('mural')">🏠 Ir al inicio</button>
     </div>
   </section>
 
@@ -472,14 +451,13 @@
   }
 
   function go(id) {
-    if (id === "inicio") {
-      // La banda se consolida sola al salir de la convocatoria
+    // El muro es la home: la banda se consolida sola al volver acá
+    if (id === "mural") {
       guardarBanda();
-      const linea = document.getElementById("inicioBanda");
       if (banda) {
-        linea.style.display = "block";
-        linea.textContent = `⚽ Tu banda: ${banda.nombre} (${banda.jugadores.length})`;
+        document.getElementById("muralTitulo").textContent = `📖 El muro de ${banda.nombre}`;
       }
+      renderMural();
     }
     // Nueva iteración del flujo de creación: rota la frase de "Donde sea"
     if (id === "crear") {
