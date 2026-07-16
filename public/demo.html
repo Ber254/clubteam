@@ -1189,9 +1189,15 @@
     const faltan = Math.max(0, p.minimo - p.anotados);
     document.getElementById("muralProximo").innerHTML =
       `<div class="card pad" style="border-color:rgba(45,106,79,.35);">
-        <div class="match" style="margin-bottom:10px;">
-          <span><span class="big">${p.fecha}</span><br><span class="meta">${p.lugar}</span></span>
-          <span class="tag">${faltan ? "Faltan " + faltan : "✅ ¡Se juega!"}</span>
+        <div onclick="abrirPartidoDelMuro()" style="cursor:pointer; margin:-4px -4px 10px; padding:4px; border-radius:8px;"
+          onmouseover="this.style.background='rgba(45,106,79,.06)'" onmouseout="this.style.background='transparent'">
+          <div class="match">
+            <span><span class="big">${p.fecha}</span><br><span class="meta">${p.lugar}</span></span>
+            <span class="tag">${faltan ? "Faltan " + faltan : "✅ ¡Se juega!"}</span>
+          </div>
+          <p class="sub" style="margin:8px 0 0; color:var(--verde-acento); font-weight:500; font-size:13px;">
+            👥 Ver los ${p.anotados} anotados y armar equipos →
+          </p>
         </div>
         <p class="label" style="padding:0;">🔥 Calentando la previa</p>
         <div class="card" id="muralPrevia" style="margin-bottom:8px;"></div>
@@ -1228,6 +1234,30 @@
     if (!t) return;
     muralProximo.previa.push({ n: "Vos", t, me: true });
     renderMural();
+  }
+
+  // Desde el muro: abrir la convocatoria de ese partido (anotados + armado)
+  function abrirPartidoDelMuro() {
+    const p = muralProximo;
+    minimo = p.minimo;
+    document.getElementById("resumen").textContent =
+      `${p.fecha} · ${p.lugar} · mínimo ${p.minimo}`;
+    document.getElementById("minTxt").textContent = p.minimo;
+    document.getElementById("wspMsg").innerHTML =
+      `⚽ <strong>¡Se arma partido!</strong> ${p.fecha} en ${p.lugar}.<br>` +
+      `Necesitamos <strong>${p.minimo}</strong> para que se juegue. Anotate y elegí tu puesto 👉 ` +
+      `<span style="color:var(--verde-acento);">http://localhost:3001/p/x7k2m9</span>` +
+      `<span class="hora">21:14 ✓✓</span>`;
+    document.getElementById("avisoBanda").style.display = "none";
+
+    // Los que ya se anotaron a este partido
+    anotados.length = 0;
+    proximoId = 1;
+    nombresEquipos = null;
+    agregarAnotado("Nacho", "Ataque", true);
+    POOL.slice(0, p.anotados - 1).forEach(([n, rol]) => agregarAnotado(n, rol, false));
+    actualizar();
+    go("creado");
   }
 
   renderMiRol();
