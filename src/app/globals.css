@@ -1,0 +1,48 @@
+@import "tailwindcss";
+
+/* La identidad de ClubTeam es un tema claro tipo "cancha". El scaffold traía
+   modo oscuro automático por prefers-color-scheme, que pelearía con la paleta.
+   Redefinimos la variante `dark:` para que dependa de una clase .dark (que
+   nunca ponemos): así todas las utilidades dark:* existentes quedan inertes
+   sin tener que borrarlas de cada componente. */
+@custom-variant dark (&:where(.dark, .dark *));
+
+@theme {
+  /* Paleta ClubTeam */
+  --color-verde-claro: #e8f5e9;
+  --color-verde-oscuro: #dceddc;
+  --color-verde-acento: #2d6a4f;
+  --color-blanco-cancha: #ffffff;
+  --color-texto-principal: #1b1b1b;
+
+  /* Tokens semánticos (los usan bg-background / text-background / etc.) */
+  --color-background: #ffffff;
+  --color-foreground: #1b1b1b;
+
+  /* Tipografía: Geist (limpia y moderna, buena en mobile), cargada en layout */
+  --font-sans: var(--font-geist-sans), ui-sans-serif, system-ui, -apple-system,
+    "Segoe UI", Roboto, sans-serif;
+  --font-mono: var(--font-geist-mono), ui-monospace, monospace;
+}
+
+:root {
+  --background: #ffffff;
+  --foreground: #1b1b1b;
+}
+
+body {
+  color: var(--color-texto-principal);
+  font-family: var(--font-sans);
+
+  /* Pasto rayado: franjas horizontales de bajo contraste entre los dos verdes
+     claros, simulando el corte del césped de una cancha vista de frente.
+     Franjas anchas (72px) para que sea textura de fondo, no ruido. */
+  background-color: var(--color-verde-claro);
+  background-image: repeating-linear-gradient(
+    0deg,
+    var(--color-verde-claro) 0,
+    var(--color-verde-claro) 72px,
+    var(--color-verde-oscuro) 72px,
+    var(--color-verde-oscuro) 144px
+  );
+}

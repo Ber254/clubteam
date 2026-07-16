@@ -1,0 +1,1260 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>ClubTeam · Demo creación de partido</title>
+<style>
+  :root {
+    --verde-claro: #e8f5e9;
+    --verde-oscuro: #dceddc;
+    --verde-acento: #2d6a4f;
+    --blanco: #ffffff;
+    --texto: #1b1b1b;
+    --muted: #5f6b63;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0; color: var(--texto);
+    font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+    -webkit-font-smoothing: antialiased;
+    background-color: var(--verde-claro);
+    background-image: repeating-linear-gradient(0deg,
+      var(--verde-claro) 0, var(--verde-claro) 72px,
+      var(--verde-oscuro) 72px, var(--verde-oscuro) 144px);
+    min-height: 100vh;
+    transition: background-color .5s ease;
+  }
+  /* Cuando se llega al mínimo, el "clima" de la página cambia */
+  body.se-juega {
+    background-color: #d3eed9;
+    background-image: repeating-linear-gradient(0deg,
+      #d3eed9 0, #d3eed9 72px,
+      #c3e5cc 72px, #c3e5cc 144px);
+  }
+  .banner { background: var(--verde-acento); color: #fff; text-align: center; font-size: 12px; padding: 6px; }
+  .app { max-width: 460px; margin: 0 auto; padding: 22px 18px 60px; }
+  .screen { display: none; }
+  .screen.active { display: block; }
+  .stack > * + * { margin-top: 18px; }
+  h1 { font-size: 24px; font-weight: 700; margin: 0; }
+  h2 { font-size: 19px; font-weight: 700; margin: 0; }
+  .sub { color: var(--muted); font-size: 14px; margin: 2px 0 0; }
+  .center { text-align: center; }
+  .btn { display: block; width: 100%; text-align: center; padding: 12px; border-radius: 10px; font-weight: 500; font-size: 15px; cursor: pointer; border: 1px solid transparent; }
+  .btn-primary { background: var(--verde-acento); color: #fff; }
+  .btn-primary:hover { opacity: .9; }
+  .btn-primary:disabled { opacity: .5; cursor: default; }
+  .btn-outline { background: #fff; color: var(--texto); border-color: rgba(0,0,0,.12); }
+  .btn-outline:hover { background: #f6f6f6; }
+  .link { background: none; border: 0; color: var(--verde-acento); font-weight: 500; font-size: 14px; cursor: pointer; padding: 0; }
+  .link:hover { text-decoration: underline; }
+  .card { background: #fff; border: 1px solid rgba(0,0,0,.1); border-radius: 12px; }
+  .card.pad { padding: 16px; }
+  .label { font-size: 11px; text-transform: uppercase; letter-spacing: .06em; color: var(--muted); font-weight: 600; margin-bottom: 8px; }
+  input[type=text], input[type=date], input[type=time] { width: 100%; padding: 12px 14px; border: 1px solid rgba(0,0,0,.15); border-radius: 10px; font-size: 16px; background: #fff; color: var(--texto); outline: none; }
+  input:focus { border-color: var(--verde-acento); }
+  .timebox { display: flex; align-items: center; gap: 6px; background: #fff; border: 1px solid rgba(0,0,0,.15); border-radius: 10px; padding: 8px 12px; }
+  .tcol { display: flex; flex-direction: column; align-items: center; gap: 3px; }
+  .tbtn { border: 0; background: rgba(45,106,79,.08); color: var(--verde-acento); border-radius: 6px; width: 42px; height: 26px; font-size: 12px; cursor: pointer; line-height: 1; }
+  .tbtn:hover { background: rgba(45,106,79,.2); }
+  .tbtn:disabled { opacity: .3; cursor: default; }
+  .tbtn:disabled:hover { background: rgba(45,106,79,.08); }
+  .tval { font-size: 22px; font-weight: 700; min-width: 42px; text-align: center; font-variant-numeric: tabular-nums; }
+  .tsep { font-size: 22px; font-weight: 700; padding-bottom: 2px; }
+  .stepper { display: flex; align-items: center; gap: 12px; }
+  .stepper button { width: 46px; height: 46px; border-radius: 10px; border: 1px solid rgba(0,0,0,.12); background: #fff; font-size: 20px; font-weight: 600; cursor: pointer; color: var(--verde-acento); }
+  .stepper button:hover { background: #f6f6f6; }
+  .stepper .val { flex: 1; text-align: center; background: #fff; border: 1px solid rgba(0,0,0,.15); border-radius: 10px; padding: 10px; }
+  .stepper .val .n { font-size: 24px; font-weight: 700; line-height: 1.1; }
+  .stepper .val .d { font-size: 11px; color: var(--muted); }
+  .seg { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+  .seg .opt { padding: 12px; border: 1px solid rgba(0,0,0,.12); border-radius: 10px; background: #fff; text-align: center; font-weight: 500; font-size: 14px; cursor: pointer; }
+  .seg .opt.sel { border-color: var(--verde-acento); background: rgba(45,106,79,.08); color: var(--verde-acento); }
+  .roles { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; }
+  .role { padding: 10px 4px; border: 1px solid rgba(0,0,0,.12); border-radius: 10px; background: #fff; text-align: center; font-weight: 500; font-size: 12px; cursor: pointer; }
+  .role .ico { font-size: 18px; display: block; margin-bottom: 2px; }
+  .role.sel { border-color: var(--verde-acento); background: rgba(45,106,79,.08); color: var(--verde-acento); }
+  .invite { display: flex; gap: 8px; align-items: center; border: 1px solid rgba(0,0,0,.1); background: #fff; border-radius: 10px; padding: 8px; }
+  .invite code { flex: 1; font-size: 12px; color: var(--muted); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .invite button { background: var(--verde-acento); color: #fff; border: 0; border-radius: 8px; padding: 7px 12px; font-size: 12px; font-weight: 500; cursor: pointer; }
+  .wsp { background: #e7f8e9; border: 1px solid rgba(0,0,0,.08); border-radius: 12px 12px 12px 2px; padding: 10px 12px; font-size: 13px; line-height: 1.5; }
+  .wsp .hora { display: block; text-align: right; font-size: 10px; color: var(--muted); margin-top: 2px; }
+  .progress-card { transition: background .4s ease, color .4s ease; }
+  .progress-card.full { background: var(--verde-acento); border-color: var(--verde-acento); color: #fff; }
+  .progress-card.full .bar { background: rgba(255,255,255,.25); }
+  .progress-card.full .bar > div { background: #fff; }
+  .progress-head { display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 8px; }
+  .progress-head .big { font-size: 20px; font-weight: 700; }
+  .bar { height: 10px; border-radius: 5px; background: rgba(27,27,27,.08); overflow: hidden; }
+  .bar > div { height: 100%; width: 0%; background: var(--verde-acento); border-radius: 5px; transition: width .4s ease; }
+  .tag { font-size: 11px; background: rgba(45,106,79,.1); color: var(--verde-acento); padding: 2px 7px; border-radius: 5px; }
+  .tag.full { background: #fff; color: var(--verde-acento); font-weight: 700; }
+  .group-title { font-size: 12px; text-transform: uppercase; letter-spacing: .05em; color: var(--muted); font-weight: 600; margin: 0 0 4px; padding: 0 14px; }
+  .anot { display: flex; align-items: center; gap: 8px; padding: 8px 14px; border-top: 1px solid rgba(0,0,0,.07); font-size: 14px; font-weight: 500; }
+  .anot:first-child { border-top: 0; }
+  .anot .num { color: var(--muted); font-weight: 400; font-size: 12px; min-width: 20px; }
+  .mini { margin-left: auto; flex-shrink: 0; border: 1px solid rgba(0,0,0,.15); background: #fff; border-radius: 7px; padding: 4px 10px; font-size: 11px; font-weight: 600; cursor: pointer; color: var(--muted); }
+  .mini:hover { background: #f6f6f6; }
+  .mini.up { background: var(--verde-acento); border-color: var(--verde-acento); color: #fff; }
+  .mini.up:hover { opacity: .9; background: var(--verde-acento); }
+  .tag-org { font-size: 10px; background: rgba(45,106,79,.1); color: var(--verde-acento); padding: 1px 6px; border-radius: 4px; }
+  .goal { width: 120px; display: block; margin: 0 auto; }
+  .empty { border: 1px dashed rgba(0,0,0,.15); border-radius: 12px; padding: 20px; text-align: center; color: var(--muted); font-size: 13px; }
+  .teams { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+  .estado-armador { font-weight: 600; color: var(--verde-acento); }
+  .score { display: flex; align-items: center; justify-content: center; gap: 18px; }
+  .score .n { font-size: 34px; font-weight: 700; line-height: 1; }
+  .score .t { font-size: 11px; color: var(--muted); text-align: center; max-width: 90px; }
+</style>
+</head>
+<body>
+<div class="banner">DEMO · flujo creación de partido (UC) · datos de ejemplo</div>
+<div class="app">
+
+  <!-- INICIO -->
+  <section id="inicio" class="screen active">
+    <div class="stack">
+      <svg class="goal" viewBox="0 0 320 170" fill="none" stroke="#2d6a4f" stroke-width="2.5">
+        <defs><pattern id="net" width="9" height="9" patternUnits="userSpaceOnUse"><path d="M9 0H0V9" stroke="#2d6a4f" stroke-width="0.7" opacity="0.4"/></pattern></defs>
+        <rect x="128" y="8" width="64" height="22" fill="url(#net)"/>
+        <path d="M14 30 H306" stroke-linecap="round"/>
+        <circle cx="128" cy="30" r="2.5" fill="#2d6a4f" stroke="none"/><circle cx="192" cy="30" r="2.5" fill="#2d6a4f" stroke="none"/>
+        <path d="M104 30 V64 H216 V30"/><path d="M54 30 V122 H266 V30"/>
+        <circle cx="160" cy="94" r="2.5" fill="#2d6a4f" stroke="none"/><path d="M131 122 Q160 146 189 122" stroke-linecap="round"/>
+      </svg>
+      <div class="center">
+        <h1>¿Armamos un partido?</h1>
+        <p class="sub">Sin registro: creás, compartís el link y a jugar.</p>
+        <p class="sub" id="inicioBanda" style="display:none; margin-top:6px; color:var(--verde-acento); font-weight:500;"></p>
+      </div>
+      <button class="btn btn-primary" onclick="go('crear')">+ Crear partido</button>
+      <button class="btn btn-outline" onclick="go('mural')">📖 El muro de la banda</button>
+      <p class="sub center">¿Ya tenés cuenta? <button class="link" onclick="alert('(Demo) Acá entrás con email/Google y recuperás tus partidos, bandas e historial en cualquier dispositivo.')">Entrar</button></p>
+    </div>
+  </section>
+
+  <!-- MURAL: el log de partidos, cada uno un evento -->
+  <section id="mural" class="screen">
+    <div class="stack">
+      <button class="link" onclick="go('inicio')">← Volver</button>
+      <div>
+        <h2>📖 El muro de Los del Miércoles</h2>
+        <p class="sub">Cada partido es un evento. Los que vienen, para calentar la previa; los que fueron, para recordar.</p>
+      </div>
+
+      <div>
+        <p class="label">🔜 Lo que viene</p>
+        <div id="muralProximo"></div>
+      </div>
+
+      <button class="btn btn-primary" onclick="go('crear')">+ Armar otro partido</button>
+
+      <div>
+        <p class="label">🏆 Ya jugados</p>
+        <div id="muralPasados" class="stack"></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- CREAR PARTIDO -->
+  <section id="crear" class="screen">
+    <div class="stack">
+      <button class="link" onclick="go('inicio')">← Volver</button>
+      <div>
+        <h2>Nuevo partido</h2>
+        <p class="sub">Fecha, lugar y cuántos tienen que ser para que se juegue.</p>
+      </div>
+      <div>
+        <p class="label">Tu nombre <span style="text-transform:none; letter-spacing:0; font-weight:400; opacity:.7;">— para que sepan quién organiza</span></p>
+        <input type="text" id="nombreUC" maxlength="30" placeholder="¿Quién organiza?" />
+      </div>
+      <div id="convocatoriaWrap" style="display:none;">
+        <p class="label">¿A quién convocás?</p>
+        <div class="seg">
+          <div class="opt" id="optBanda" onclick="setConvocatoria('banda')">🔁 <span id="bandaNombre"></span></div>
+          <div class="opt" id="optNueva" onclick="setConvocatoria('nueva')">✨ Gente nueva</div>
+        </div>
+        <p class="sub" style="margin-top:6px;">A tu banda le avisa CT directo. El link suma gente nueva igual.</p>
+      </div>
+      <div style="display:grid; grid-template-columns:1fr auto; gap:12px;">
+        <div style="min-width:0;">
+          <p class="label">Fecha</p>
+          <div class="timebox">
+            <div class="tcol" style="flex:1;">
+              <button type="button" class="tbtn" style="width:100%;" onclick="moverFecha(1)" aria-label="Día siguiente">▲</button>
+              <div class="tval" id="fechaVal" style="font-size:17px; white-space:nowrap; width:100%;">Hoy</div>
+              <button type="button" class="tbtn" style="width:100%;" id="btnFechaAbajo" onclick="moverFecha(-1)" aria-label="Día anterior">▼</button>
+            </div>
+          </div>
+        </div>
+        <div>
+          <p class="label">Hora</p>
+          <div class="timebox">
+            <div class="tcol">
+              <button type="button" class="tbtn" onclick="moverHora(1)" aria-label="Subir hora">▲</button>
+              <div class="tval" id="horaVal">20</div>
+              <button type="button" class="tbtn" onclick="moverHora(-1)" aria-label="Bajar hora">▼</button>
+            </div>
+            <div class="tsep">:</div>
+            <div class="tcol">
+              <button type="button" class="tbtn" onclick="moverMinuto(1)" aria-label="Subir minutos">▲</button>
+              <div class="tval" id="minutoVal">00</div>
+              <button type="button" class="tbtn" onclick="moverMinuto(-1)" aria-label="Bajar minutos">▼</button>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div>
+        <p class="label">Lugar</p>
+        <input type="text" id="cancha" placeholder="Ej: El Templo, calle 12 y 60" />
+      </div>
+      <div>
+        <p class="label">¿Cuántos jugadores necesitás para que se juegue?</p>
+        <div class="stepper">
+          <button type="button" onclick="cambiarMin(-1)">−</button>
+          <div class="val">
+            <div class="n" id="minVal">10</div>
+            <div class="d" id="minDesc">5 vs 5</div>
+          </div>
+          <button type="button" onclick="cambiarMin(1)">+</button>
+        </div>
+      </div>
+      <div>
+        <p class="label">¿Vos jugás?</p>
+        <div class="seg">
+          <div class="opt sel" id="optJuego" onclick="setJuega(true)">⚽ Sí, juego</div>
+          <div class="opt" id="optOrganizo" onclick="setJuega(false)">📋 Solo organizo</div>
+        </div>
+      </div>
+      <div id="miRolWrap">
+        <p class="label">Tu puesto</p>
+        <div class="roles" id="miRolGrid"></div>
+      </div>
+      <button class="btn btn-primary" onclick="crearPartido()">Crear partido y generar link</button>
+    </div>
+  </section>
+
+  <!-- PARTIDO CREADO -->
+  <section id="creado" class="screen">
+    <div class="stack">
+      <button class="link" onclick="go('inicio')">← Inicio</button>
+      <div class="center">
+        <div style="font-size:36px;" id="emoji">🎉</div>
+        <h2 id="tituloCreado">¡Convocatoria abierta!</h2>
+        <p class="sub" id="resumen"></p>
+      </div>
+
+      <div>
+        <p class="label">Link para el grupo de WhatsApp</p>
+        <div class="invite">
+          <code id="linkTxt">http://localhost:3001/p/x7k2m9</code>
+          <button onclick="copiarLink(this)">Copiar</button>
+        </div>
+        <p id="avisoBanda" style="display:none; margin:8px 0 0; background:rgba(45,106,79,.08); color:var(--verde-acento); border-radius:8px; padding:10px 12px; font-size:13px;"></p>
+      </div>
+
+      <div>
+        <p class="label">Así se ve tu mensaje</p>
+        <div class="wsp" id="wspMsg"></div>
+      </div>
+
+      <div class="card pad progress-card" id="progressCard">
+        <div class="progress-head">
+          <span class="big"><span id="cuenta">0</span>/<span id="minTxt">10</span></span>
+          <span class="tag" id="estado">Faltan 10 para que se juegue</span>
+        </div>
+        <div class="bar"><div id="barFill"></div></div>
+      </div>
+
+      <div id="lobbyWrap">
+        <div class="empty" id="lobbyEmpty">Todavía no se anotó nadie. Compartí el link en el grupo 📲</div>
+        <div style="display:none;" id="lobbyFull">
+          <p class="label" style="padding:0;">Titulares</p>
+          <div class="card" id="lobby"></div>
+          <div id="suplentesWrap" style="display:none; margin-top:14px;">
+            <p class="label" style="padding:0;">Suplentes <span style="text-transform:none; letter-spacing:0; font-weight:400; opacity:.7;">— por orden de llegada</span></p>
+            <div class="card" id="suplentes"></div>
+          </div>
+        </div>
+      </div>
+
+      <button class="btn btn-outline" id="btnSim" onclick="simular()">▶ Simular que se anotan jugadores</button>
+      <button class="btn btn-primary" id="btnEquipos" style="display:none;" onclick="abrirArmador()">Armar equipos</button>
+
+      <div class="card pad center" style="border-color: rgba(45,106,79,.35);">
+        <p style="margin:0; font-weight:600;">💾 Tu partido vive en este teléfono</p>
+        <p class="sub" style="margin:4px 0 12px;">Si cambiás de dispositivo o se borran los datos del navegador, perdés el control del partido y de tu banda. Creá tu cuenta y manejalo desde donde quieras.</p>
+        <button class="btn btn-primary" onclick="alert('(Demo) Acá se linkea email/Google a tu sesión de organizador: mismo usuario, partido y banda intactos.')">Crear mi cuenta</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- ARMADOR MANUAL DE EQUIPOS -->
+  <section id="armador" class="screen">
+    <div class="stack">
+      <button class="link" onclick="go('creado')">← Volver a la convocatoria</button>
+      <div>
+        <h2>Armar equipos</h2>
+        <p class="sub">Tocá <strong>A</strong> o <strong>B</strong> para asignar a cada jugador. <span class="estado-armador" id="armadorEstado"></span></p>
+      </div>
+
+      <button class="btn btn-outline" onclick="sortearNombres()" style="font-size:13px; padding:9px;">🎲 Sortear otros nombres</button>
+
+      <div class="teams">
+        <div class="card pad" id="colA"></div>
+        <div class="card pad" id="colB"></div>
+      </div>
+
+      <div id="poolWrap">
+        <p class="label">Sin equipo (<span id="poolCount">0</span>)</p>
+        <div class="card" id="pool"></div>
+      </div>
+
+      <div id="suplentesArmadorWrap" style="display:none;">
+        <p class="label">Suplentes (<span id="suplentesCount">0</span>) <span style="text-transform:none; letter-spacing:0; font-weight:400; opacity:.7;">— metelos a un equipo si querés</span></p>
+        <div class="card" id="suplentesArmador"></div>
+      </div>
+
+      <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px;">
+        <button class="btn btn-outline" onclick="sugerirEquipos()">⚖ Sugerir</button>
+        <button class="btn btn-outline" onclick="limpiarEquipos()">🧹 Limpiar</button>
+      </div>
+
+      <button class="btn btn-primary" id="btnConfirmarEquipos" disabled onclick="confirmarEquipos()">Confirmar equipos</button>
+    </div>
+  </section>
+
+  <!-- EQUIPOS CONFIRMADOS -->
+  <section id="equiposFinal" class="screen">
+    <div class="stack">
+      <button class="link" onclick="go('armador')">← Editar equipos</button>
+      <div class="center">
+        <div style="font-size:36px;">🏆</div>
+        <h2>¡Equipos listos!</h2>
+        <p class="sub" id="finalResumen"></p>
+      </div>
+
+      <div class="teams" id="finalTeams"></div>
+      <p class="sub center">Los nombres quedan guardados para el próximo partido de la banda. Pronto: cada capitán va a poder cambiar el suyo.</p>
+
+      <div>
+        <p class="label">Mensaje para el grupo</p>
+        <div class="wsp" id="wspEquipos"></div>
+        <button class="btn btn-primary" style="margin-top:10px;" onclick="copiarEquipos(this)">Copiar mensaje</button>
+      </div>
+
+      <button class="btn btn-outline" onclick="abrirPost()">🏁 Ya se jugó · Cargar resultado</button>
+    </div>
+  </section>
+
+  <!-- POST PARTIDO: resultado, goleadores, lesiones e infracciones -->
+  <section id="postpartido" class="screen">
+    <div class="stack">
+      <button class="link" onclick="go('equiposFinal')">← Volver</button>
+      <div>
+        <h2>¿Cómo salió?</h2>
+        <p class="sub">Sumá los goles de cada uno y el marcador se arma solo. Lo puede cargar cualquiera que jugó.</p>
+      </div>
+
+      <div class="card pad" id="marcador"></div>
+
+      <div id="postEquipos"></div>
+
+      <button class="btn btn-primary" onclick="guardarResultado()">Guardar resultado</button>
+    </div>
+  </section>
+
+  <!-- RESULTADO GUARDADO -->
+  <section id="resultadoFinal" class="screen">
+    <div class="stack">
+      <button class="link" onclick="go('postpartido')">← Corregir</button>
+      <div class="center">
+        <div style="font-size:36px;">🏁</div>
+        <h2>Resultado guardado</h2>
+        <p class="sub">Ya suma al historial y a las estadísticas de cada jugador.</p>
+        <p class="sub" style="margin-top:8px; font-size:12px;">Cualquiera que jugó puede cargar el resultado desde el link del partido. Si lo carga otro, vos como organizador lo validás o corregís; si lo cargaste vos, ellos pueden pedir una corrección.</p>
+      </div>
+
+      <div>
+        <p class="label">Mensaje para el grupo</p>
+        <div class="wsp" id="wspResultado"></div>
+        <button class="btn btn-primary" style="margin-top:10px;" onclick="copiarResultado(this)">Copiar mensaje</button>
+      </div>
+
+      <button class="btn btn-outline" onclick="go('inicio')">🏠 Ir al inicio</button>
+    </div>
+  </section>
+
+</div>
+
+<script>
+  // Roles simples, pensados para fútbol 5/7 entre amigos.
+  const ROLES = [
+    { n: "Arquero", ico: "🧤" },
+    { n: "Defensa", ico: "🛡️" },
+    { n: "Ataque", ico: "⚽" },
+    { n: "Donde sea", ico: "🔄" },
+  ];
+  const POOL = [
+    ["Colo","Arquero"],["Pipa","Arquero"],["Tincho","Defensa"],["Dani","Defensa"],
+    ["Rulo","Defensa"],["Chino","Defensa"],["Lea","Defensa"],
+    ["Seba","Donde sea"],["Pablito","Donde sea"],["Tomi","Donde sea"],["Facu","Donde sea"],
+    ["Fer","Ataque"],["Juanma","Ataque"],["Ramita","Ataque"],["Toto","Ataque"],["Mati","Ataque"],
+  ];
+  // "Donde sea" se muestra con una frase futbolera distinta en cada iteración.
+  // El valor guardado es siempre el canónico "Donde sea".
+  const FRASES_DONDE_SEA = [
+    "Donde sea","Donde pinte","Donde me necesiten","Donde haga falta","Donde toque",
+    "Donde caiga","Donde falte uno","Donde me manden","Donde diga el DT","Donde haya lugar",
+    "Yo me acomodo","Me da igual, juego","Comodín","Todoterreno","Polifuncional",
+    "Multiuso","Utility","Sin puesto fijo","Puesto libre","Tapo agujeros",
+    "Juego en todas","De 2 a 11","Del arco pa' adelante","Hasta de arquero","Ponéme donde quieras",
+    "A disposición","Que elija el capi","El comodín del mazo","Pieza de recambio","Jugador de rotación",
+    "Me pongo la que sea","Al servicio del equipo","Donde sume","Donde me pongas, rindo","Voy a todas",
+    "Cualquier puesto","Sin drama, donde sea","Donde quiera el equipo","Titular donde sea","Me adapto",
+    "Camaleón","El que tapa huecos","Toco y me acomodo","Puesto: sí","Vengo a jugar nomás",
+    "El plan B de todos","Donde el partido pida","Falso 9... y falso todo","Libre, a lo líbero","Donde ataje o meta gol",
+  ];
+  let fraseActual = FRASES_DONDE_SEA[Math.floor(Math.random() * FRASES_DONDE_SEA.length)];
+  const etiqueta = (rol) => rol === "Donde sea" ? fraseActual : rol;
+
+  let minimo = 10;
+  let ucJuega = true;
+  let ucRol = "Donde sea";
+
+  // Cada anotado: { id, n (nombre), rol, org, titular }.
+  // Al anotarse entrás como titular si hay lugar; después el UC puede
+  // subir suplentes al partido y bajar titulares al banco.
+  const anotados = [];
+  let proximoId = 1;
+
+  function agregarAnotado(n, rol, org) {
+    const titular = anotados.filter(a => a.titular).length < minimo;
+    anotados.push({ id: proximoId++, n, rol, org, titular });
+  }
+  function promover(id) {
+    const a = anotados.find(x => x.id === id);
+    if (a) { a.titular = true; actualizar(); }
+  }
+  function bajar(id) {
+    const a = anotados.find(x => x.id === id);
+    if (a) { a.titular = false; actualizar(); }
+  }
+
+  // ----- Bandas: los grupos se arman solos, sin gestión del usuario. -----
+  // La gente que se anotó a tu último partido queda como tu "banda", con
+  // nombre automático (por lugar o por día). El próximo partido se
+  // re-convoca con un tap. El usuario nunca ve "crear grupo".
+  let banda = null;           // { nombre, jugadores: [{n, rol}] }
+  let convocatoria = "nueva"; // "banda" | "nueva"
+  let ultimoPartido = null;   // { dia, lugar } para bautizar la banda
+
+  function nombreBanda() {
+    if (ultimoPartido?.lugar) return "Los de " + ultimoPartido.lugar.split(",")[0].trim();
+    if (ultimoPartido?.dia) return "Los del " + ultimoPartido.dia;
+    return "La banda";
+  }
+  function guardarBanda() {
+    if (anotados.length >= 2) {
+      banda = {
+        nombre: nombreBanda(),
+        jugadores: anotados.map(a => ({ n: a.n, rol: a.rol })),
+        // Los nombres de equipo quedan para el próximo partido de la banda
+        nombresEquipos: nombresEquipos ? { ...nombresEquipos } : banda?.nombresEquipos,
+      };
+    }
+  }
+  function setConvocatoria(v) {
+    convocatoria = v;
+    document.getElementById("optBanda").classList.toggle("sel", v === "banda");
+    document.getElementById("optNueva").classList.toggle("sel", v === "nueva");
+  }
+
+  function go(id) {
+    if (id === "inicio") {
+      // La banda se consolida sola al salir de la convocatoria
+      guardarBanda();
+      const linea = document.getElementById("inicioBanda");
+      if (banda) {
+        linea.style.display = "block";
+        linea.textContent = `⚽ Tu banda: ${banda.nombre} (${banda.jugadores.length})`;
+      }
+    }
+    // Nueva iteración del flujo de creación: rota la frase de "Donde sea"
+    if (id === "crear") {
+      fraseActual = FRASES_DONDE_SEA[Math.floor(Math.random() * FRASES_DONDE_SEA.length)];
+      renderMiRol();
+      guardarBanda();
+      const wrap = document.getElementById("convocatoriaWrap");
+      if (banda) {
+        wrap.style.display = "block";
+        document.getElementById("bandaNombre").textContent = `${banda.nombre} (${banda.jugadores.length})`;
+        setConvocatoria("banda"); // default de mínima fricción: repetir con la banda
+      } else {
+        wrap.style.display = "none";
+        convocatoria = "nueva";
+      }
+    }
+    document.querySelectorAll(".screen").forEach(s => s.classList.remove("active"));
+    document.getElementById(id).classList.add("active");
+    window.scrollTo(0, 0);
+  }
+
+  // Siempre par: los equipos tienen que quedar parejos.
+  function descMin(n) {
+    return (n / 2) + " vs " + (n / 2);
+  }
+  function cambiarMin(d) {
+    minimo = Math.max(4, Math.min(30, minimo + d * 2));
+    document.getElementById("minVal").textContent = minimo;
+    document.getElementById("minDesc").textContent = descMin(minimo);
+  }
+
+  function setJuega(v) {
+    ucJuega = v;
+    document.getElementById("optJuego").classList.toggle("sel", v);
+    document.getElementById("optOrganizo").classList.toggle("sel", !v);
+    document.getElementById("miRolWrap").style.display = v ? "block" : "none";
+  }
+
+  function renderMiRol() {
+    document.getElementById("miRolGrid").innerHTML = ROLES.map(r =>
+      `<div class="role ${r.n === ucRol ? "sel" : ""}" data-rol="${r.n}" onclick="pickMiRol('${r.n}')">
+        <span class="ico">${r.ico}</span>${etiqueta(r.n)}
+      </div>`).join("");
+  }
+  function pickMiRol(n) {
+    ucRol = n;
+    document.querySelectorAll("#miRolGrid .role").forEach(e => e.classList.toggle("sel", e.dataset.rol === n));
+  }
+
+  function fmtFecha(v) {
+    const d = new Date(v);
+    return d.toLocaleDateString("es-AR", { weekday: "short", day: "numeric", month: "short" })
+      + " · " + d.toLocaleTimeString("es-AR", { hour: "2-digit", minute: "2-digit", hour12: false });
+  }
+
+  // Fecha con flechas: arranca en HOY, ▲ avanza un día, ▼ retrocede
+  // pero nunca antes de hoy (el botón se deshabilita).
+  const hoy = () => { const d = new Date(); d.setHours(0, 0, 0, 0); return d; };
+  let fechaSel = hoy();
+
+  function moverFecha(d) {
+    const nueva = new Date(fechaSel);
+    nueva.setDate(nueva.getDate() + d);
+    if (nueva < hoy()) return;
+    fechaSel = nueva;
+    renderFecha();
+  }
+  function renderFecha() {
+    const h = hoy();
+    const manana = new Date(h);
+    manana.setDate(h.getDate() + 1);
+    const esMismo = (a, b) => a.getTime() === b.getTime();
+    document.getElementById("fechaVal").textContent =
+      esMismo(fechaSel, h) ? "Hoy"
+      : esMismo(fechaSel, manana) ? "Mañana"
+      : fechaSel.toLocaleDateString("es-AR", { weekday: "short", day: "numeric", month: "short" });
+    document.getElementById("btnFechaAbajo").disabled = esMismo(fechaSel, h);
+  }
+
+  // Hora con flechas: la hora se mueve de a 1 (0-23, da la vuelta) y los
+  // minutos de a 15 (los horarios de cancha van en cuartos de hora).
+  let horaSel = 20;
+  let minutoSel = 0;
+  const pad2 = (x) => String(x).padStart(2, "0");
+  const horaActual = () => pad2(horaSel) + ":" + pad2(minutoSel);
+
+  function renderHora() {
+    document.getElementById("horaVal").textContent = pad2(horaSel);
+    document.getElementById("minutoVal").textContent = pad2(minutoSel);
+  }
+  function moverHora(d) {
+    horaSel = (horaSel + 24 + d) % 24;
+    renderHora();
+  }
+  function moverMinuto(d) {
+    minutoSel = (minutoSel + 60 + d * 15) % 60;
+    renderHora();
+  }
+
+  function crearPartido() {
+    const cuandoDate = new Date(fechaSel);
+    cuandoDate.setHours(horaSel, minutoSel, 0, 0);
+    const cuando = fmtFecha(cuandoDate);
+    const cancha = document.getElementById("cancha").value.trim();
+    document.getElementById("resumen").textContent =
+      cuando + (cancha ? " · " + cancha : "") + " · mínimo " + minimo;
+    document.getElementById("minTxt").textContent = minimo;
+    document.getElementById("wspMsg").innerHTML =
+      `⚽ <strong>¡Se arma partido!</strong> ${cuando}${cancha ? " en " + cancha : ""}.<br>` +
+      `Necesitamos <strong>${minimo}</strong> para que se juegue. Anotate y elegí tu puesto 👉 ` +
+      `<span style="color:var(--verde-acento);">http://localhost:3001/p/x7k2m9</span>` +
+      `<span class="hora">21:14 ✓✓</span>`;
+    // El partido nuevo bautiza (o re-bautiza) la banda que se arme
+    ultimoPartido = {
+      dia: cuandoDate.toLocaleDateString("es-AR", { weekday: "long" }),
+      lugar: cancha,
+    };
+
+    // Si convocaste a tu banda, CT les avisa directo (el link sigue sirviendo)
+    const aviso = document.getElementById("avisoBanda");
+    if (convocatoria === "banda" && banda) {
+      aviso.style.display = "block";
+      aviso.innerHTML = `📣 CT ya les avisó a los <strong>${banda.jugadores.length}</strong> de <strong>${banda.nombre}</strong>. El link es por si se suma gente nueva.`;
+    } else {
+      aviso.style.display = "none";
+    }
+
+    anotados.length = 0;
+    proximoId = 1;
+    nombresEquipos = null; // partido nuevo: hereda los de la banda o sortea
+    if (ucJuega) {
+      const nombreOrganizador =
+        document.getElementById("nombreUC").value.trim() || "El organizador";
+      agregarAnotado(nombreOrganizador, ucRol, true);
+    }
+    actualizar();
+    go("creado");
+  }
+
+  function copiarLink(btn) {
+    const txt = document.getElementById("linkTxt").textContent;
+    (navigator.clipboard ? navigator.clipboard.writeText(txt) : Promise.reject())
+      .then(() => { btn.textContent = "¡Copiado!"; setTimeout(() => btn.textContent = "Copiar", 1600); })
+      .catch(() => { btn.textContent = "Copiá manual"; setTimeout(() => btn.textContent = "Copiar", 1600); });
+  }
+
+  function simular() {
+    const faltantes = POOL.filter(p => !anotados.some(a => a.n === p[0]));
+    const cuantos = Math.min(1 + Math.floor(Math.random() * 3), faltantes.length);
+    for (let i = 0; i < cuantos; i++) {
+      const idx = Math.floor(Math.random() * faltantes.length);
+      const [n, r] = faltantes.splice(idx, 1)[0];
+      agregarAnotado(n, r, false);
+    }
+    actualizar();
+  }
+
+  function actualizar() {
+    const titulares = anotados.filter(a => a.titular);
+    const suplentes = anotados.filter(a => !a.titular);
+    const enPartido = titulares.length;
+    const completo = enPartido >= minimo;
+
+    document.getElementById("cuenta").textContent = enPartido;
+    document.getElementById("barFill").style.width = Math.min(100, (enPartido / minimo) * 100) + "%";
+
+    // Indicador + cambio de "clima" al llegar al mínimo (de titulares)
+    document.body.classList.toggle("se-juega", completo);
+    document.getElementById("progressCard").classList.toggle("full", completo);
+    const tag = document.getElementById("estado");
+    tag.textContent = completo
+      ? (suplentes.length ? `✅ ¡SE JUEGA! · ${suplentes.length} en banca` : "✅ ¡SE JUEGA!")
+      : `Faltan ${minimo - enPartido} para que se juegue`;
+    tag.className = completo ? "tag full" : "tag";
+    document.getElementById("emoji").textContent = completo ? "🔥" : "🎉";
+    document.getElementById("tituloCreado").textContent = completo ? "¡Partido confirmado!" : "¡Convocatoria abierta!";
+
+    document.getElementById("lobbyEmpty").style.display = anotados.length === 0 ? "block" : "none";
+    document.getElementById("lobbyFull").style.display = anotados.length === 0 ? "none" : "block";
+    document.getElementById("btnEquipos").style.display = completo ? "block" : "none";
+    document.getElementById("btnSim").style.display =
+      anotados.length >= POOL.length + 1 ? "none" : "block";
+
+    if (anotados.length > 0) {
+      document.getElementById("lobby").innerHTML = ROLES.map(r => {
+        const gente = titulares.filter(a => a.rol === r.n);
+        if (!gente.length) return "";
+        return `<div style="padding:8px 0;">
+          <p class="group-title">${r.ico} ${etiqueta(r.n)} (${gente.length})</p>
+          ${gente.map(a =>
+            `<div class="anot">${a.n}${a.org ? ' <span class="tag-org">organizador</span>' : ''}
+              <button class="mini" onclick="bajar(${a.id})" title="Bajar a suplente">↓ Bajar</button>
+            </div>`).join("")}
+        </div>`;
+      }).join("");
+
+      document.getElementById("suplentesWrap").style.display = suplentes.length ? "block" : "none";
+      if (suplentes.length) {
+        document.getElementById("suplentes").innerHTML = suplentes.map((a, i) =>
+          `<div class="anot"><span class="num">${i + 1}.</span>${a.n}<span style="color:var(--muted); font-weight:400; font-size:12px;">· ${etiqueta(a.rol)}</span>
+            <button class="mini up" onclick="promover(${a.id})" title="Añadir al partido">↑ Añadir</button>
+          </div>`
+        ).join("");
+      }
+    }
+  }
+
+  // ----- Armador manual de equipos -----
+  // Solo juegan los titulares. CT asiste agrupando los sin-equipo por rol;
+  // el UC asigna con tap (A/B), puede pedir una sugerencia y retocarla.
+  const rolIco = (r) => (ROLES.find(x => x.n === r) || {}).ico || "";
+
+  // Nombres de equipo: pares clásicos del fútbol entre amigos. El UC puede
+  // editarlos (✏️) o sortear otro par (🎲); quedan guardados en la banda
+  // para el próximo partido. (Futuro: el capitán de cada equipo lo cambia.)
+  const PARES_EQUIPOS = [
+    ["Claros", "Oscuros"],
+    ["Gordos", "Pelados"],
+    ["Con pechera", "Sin pechera"],
+    ["Casados", "Solteros"],
+    ["Viejos", "Pibes"],
+    ["Locales", "Visitantes"],
+    ["Zurdos", "Diestros"],
+    ["Los de siempre", "Los nuevos"],
+    ["Equipo Messi", "Equipo Cristiano"],
+    ["Primera", "Reserva"],
+    ["Camisetas", "Pecheras"],
+    ["Mates", "Birras"],
+  ];
+  let nombresEquipos = null; // { A, B } del partido actual
+  let editandoEquipo = null; // 'A' | 'B' mientras se edita el nombre inline
+
+  function parAleatorio() {
+    const par = PARES_EQUIPOS[Math.floor(Math.random() * PARES_EQUIPOS.length)];
+    return { A: par[0], B: par[1] };
+  }
+  function sortearNombres() {
+    let nuevo = parAleatorio();
+    while (nombresEquipos && nuevo.A === nombresEquipos.A) nuevo = parAleatorio();
+    nombresEquipos = nuevo;
+    editandoEquipo = null;
+    renderArmador();
+  }
+  // Edición inline del nombre (nada de prompt: el preview lo bloquea).
+  function renombrarEquipo(eq) {
+    editandoEquipo = eq;
+    renderArmador();
+    const inp = document.getElementById("editNombreEquipo");
+    if (inp) { inp.focus(); inp.select(); }
+  }
+  function guardarNombre(eq) {
+    if (editandoEquipo !== eq) return; // ya se guardó
+    const inp = document.getElementById("editNombreEquipo");
+    const val = inp ? inp.value.trim() : "";
+    if (val) nombresEquipos[eq] = val.slice(0, 20);
+    editandoEquipo = null;
+    renderArmador();
+  }
+  function keyNombre(ev, eq) {
+    if (ev.key === "Enter") { ev.preventDefault(); guardarNombre(eq); }
+    if (ev.key === "Escape") { editandoEquipo = null; renderArmador(); }
+  }
+
+  function abrirArmador() {
+    editandoEquipo = null;
+    fraseCache.A = null;
+    fraseCache.B = null;
+    anotados.forEach(a => { if (a.equipo === undefined) a.equipo = null; });
+    // Nombres: los de la banda si ya jugaron con nombres, si no un par al azar
+    if (!nombresEquipos) {
+      nombresEquipos = banda?.nombresEquipos
+        ? { ...banda.nombresEquipos }
+        : parAleatorio();
+    }
+    renderArmador();
+    go("armador");
+  }
+
+  function asignar(id, eq) {
+    const a = anotados.find(x => x.id === id);
+    if (!a) return;
+    a.equipo = eq;
+    if (eq) a.titular = true; // meter a un equipo = pasa a jugar (aunque fuera suplente)
+    renderArmador();
+  }
+  // Mandar a la banca: sale de los que juegan y queda como suplente.
+  function aBanca(id) {
+    const a = anotados.find(x => x.id === id);
+    if (a) { a.titular = false; a.equipo = null; renderArmador(); }
+  }
+
+  function limpiarEquipos() {
+    anotados.forEach(a => { a.equipo = null; });
+    renderArmador();
+  }
+
+  // Sugerencia: arqueros separados + reparto alternado parejo.
+  // (En la app real acá entra el balanceador por nivel.)
+  function sugerirEquipos() {
+    const tits = anotados.filter(a => a.titular);
+    tits.forEach(a => { a.equipo = null; });
+    const mezclados = [...tits];
+    for (let i = mezclados.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [mezclados[i], mezclados[j]] = [mezclados[j], mezclados[i]];
+    }
+    const arqueros = mezclados.filter(a => a.rol === "Arquero");
+    let resto = mezclados.filter(a => a.rol !== "Arquero");
+    if (arqueros.length >= 2) {
+      arqueros[0].equipo = "A";
+      arqueros[1].equipo = "B";
+      resto = resto.concat(arqueros.slice(2));
+    } else {
+      resto = resto.concat(arqueros);
+    }
+    resto.forEach(a => {
+      const ca = tits.filter(x => x.equipo === "A").length;
+      const cb = tits.filter(x => x.equipo === "B").length;
+      a.equipo = ca <= cb ? "A" : "B";
+    });
+    renderArmador();
+  }
+
+  function renderArmador() {
+    const tits = anotados.filter(a => a.titular);
+    const A = tits.filter(a => a.equipo === "A");
+    const B = tits.filter(a => a.equipo === "B");
+    const pool = tits.filter(a => !a.equipo);
+
+    if (!nombresEquipos) nombresEquipos = parAleatorio();
+    const filaEquipo = (a) =>
+      `<div class="anot" style="padding:6px 0;">${rolIco(a.rol)} ${a.n}
+        <span style="margin-left:auto; display:flex; gap:6px;">
+          <button class="mini" style="margin-left:0;" onclick="aBanca(${a.id})" title="Mandar a la banca">🪑</button>
+          <button class="mini" style="margin-left:0;" onclick="asignar(${a.id}, null)" title="Sacar del equipo">✕</button>
+        </span>
+      </div>`;
+    const header = (eq, arr) =>
+      editandoEquipo === eq
+        ? `<div style="display:flex; align-items:center; gap:4px; margin-bottom:4px;">
+            <input id="editNombreEquipo" value="${nombresEquipos[eq].replace(/"/g, "&quot;")}" maxlength="20"
+              onkeydown="keyNombre(event, '${eq}')" onblur="guardarNombre('${eq}')"
+              style="flex:1; min-width:0; padding:4px 8px; border:1px solid var(--verde-acento); border-radius:6px; font-size:13px; font-weight:600; outline:none;" />
+            <button class="mini up" style="margin-left:0;" onmousedown="event.preventDefault()" onclick="guardarNombre('${eq}')" title="Guardar">✓</button>
+          </div>`
+        : `<p class="group-title" style="padding:0; display:flex; align-items:center; gap:4px;">
+            <span style="min-width:0; overflow:hidden; text-overflow:ellipsis;">${nombresEquipos[eq]} (${arr.length})</span>
+            <button class="mini" style="margin-left:auto;" onclick="renombrarEquipo('${eq}')" title="Cambiar nombre">✏️</button>
+          </p>`;
+    const columna = (eq, arr) =>
+      header(eq, arr) +
+      (arr.length
+        ? arr.map(filaEquipo).join("") + radarEquipo(arr) +
+          `<p class="sub center" style="margin:4px 0 0; font-size:11px;">${fraseEquipo(arr, eq)}</p>`
+        : `<p class="sub" style="margin:6px 0 0;">Tocá A o B abajo</p>`);
+    document.getElementById("colA").innerHTML = columna("A", A);
+    document.getElementById("colB").innerHTML = columna("B", B);
+
+    document.getElementById("poolCount").textContent = pool.length;
+    document.getElementById("poolWrap").style.display = pool.length ? "block" : "none";
+    document.getElementById("pool").innerHTML = ROLES.map(r => {
+      const gente = pool.filter(a => a.rol === r.n);
+      if (!gente.length) return "";
+      return `<div style="padding:8px 0;">
+        <p class="group-title">${r.ico} ${etiqueta(r.n)} (${gente.length})</p>
+        ${gente.map(a => `<div class="anot">${a.n}
+          <span style="margin-left:auto; display:flex; gap:6px;">
+            <button class="mini up" style="margin-left:0;" onclick="asignar(${a.id}, 'A')">A</button>
+            <button class="mini up" style="margin-left:0;" onclick="asignar(${a.id}, 'B')">B</button>
+            <button class="mini" style="margin-left:0;" onclick="aBanca(${a.id})" title="Mandar a la banca">🪑</button>
+          </span>
+        </div>`).join("")}
+      </div>`;
+    }).join("");
+
+    // Suplentes: se pueden meter a un equipo para modificar la sugerencia.
+    const suplentes = anotados.filter(a => !a.titular);
+    document.getElementById("suplentesCount").textContent = suplentes.length;
+    document.getElementById("suplentesArmadorWrap").style.display = suplentes.length ? "block" : "none";
+    document.getElementById("suplentesArmador").innerHTML = suplentes.map((a, i) =>
+      `<div class="anot">
+        <span class="num" style="color:var(--muted); font-weight:400; font-size:12px; min-width:20px;">${i + 1}.</span>
+        ${rolIco(a.rol)} ${a.n}
+        <span style="margin-left:auto; display:flex; gap:6px;">
+          <button class="mini up" style="margin-left:0;" onclick="asignar(${a.id}, 'A')">A</button>
+          <button class="mini up" style="margin-left:0;" onclick="asignar(${a.id}, 'B')">B</button>
+        </span>
+      </div>`).join("");
+
+    // Confirmar disponible con al menos uno por lado. Disparejo o con gente
+    // sin asignar es válido: el UC decide.
+    const listo = A.length > 0 && B.length > 0;
+    document.getElementById("armadorEstado").textContent =
+      !listo ? "Poné al menos uno en cada equipo."
+      : pool.length > 0 ? `${pool.length} sin asignar (podés confirmar igual).`
+      : "¡Listo para confirmar!";
+    document.getElementById("btnConfirmarEquipos").disabled = !listo;
+  }
+
+  // Perfil del equipo según los roles: mini radar (Arco/Ataque/Comodín/Defensa)
+  // + frase de análisis. (Futuro: más análisis divertidos con historial real.)
+  function radarEquipo(arr) {
+    const ejes = [
+      { ico: "🧤", v: arr.filter(a => a.rol === "Arquero").length },
+      { ico: "⚽", v: arr.filter(a => a.rol === "Ataque").length },
+      { ico: "🔄", v: arr.filter(a => a.rol === "Donde sea").length },
+      { ico: "🛡️", v: arr.filter(a => a.rol === "Defensa").length },
+    ];
+    const max = Math.max(2, ...ejes.map(e => e.v));
+    const C = 70, R = 42;
+    const pt = (i, f) => {
+      const ang = -Math.PI / 2 + i * (Math.PI / 2);
+      return [C + R * f * Math.cos(ang), C + R * f * Math.sin(ang)];
+    };
+    const poli = (f) => ejes.map((_, i) => pt(i, f).map(n => n.toFixed(1)).join(",")).join(" ");
+    const datos = ejes.map((e, i) => pt(i, e.v / max).map(n => n.toFixed(1)).join(",")).join(" ");
+    const labels = ejes.map((e, i) => {
+      const [x, y] = pt(i, 1.34);
+      return `<text x="${x.toFixed(1)}" y="${(y + 4).toFixed(1)}" text-anchor="middle" font-size="12">${e.ico}</text>`;
+    }).join("");
+    const radios = ejes.map((_, i) => {
+      const [x, y] = pt(i, 1);
+      return `<line x1="${C}" y1="${C}" x2="${x.toFixed(1)}" y2="${y.toFixed(1)}" stroke="rgba(0,0,0,.1)" stroke-width="1"/>`;
+    }).join("");
+    return `<svg viewBox="0 0 140 140" style="width:100%; max-width:150px; display:block; margin:8px auto 0;" aria-hidden="true">
+      ${[1 / 3, 2 / 3, 1].map(f => `<polygon points="${poli(f)}" fill="none" stroke="rgba(0,0,0,.12)" stroke-width="1"/>`).join("")}
+      ${radios}
+      <polygon points="${datos}" fill="rgba(45,106,79,.3)" stroke="#2d6a4f" stroke-width="2" stroke-linejoin="round"/>
+      ${labels}
+    </svg>`;
+  }
+
+  // Frases graciosas sobre la formación. Se elige una al azar de la categoría
+  // que corresponde y se re-sortea cada vez que cambia la formación del equipo.
+  const FRASES_EQUIPO = {
+    sinArquero: [
+      "⚠️ Sin arquero: los van a llenar de goles.",
+      "¿Quién ataja? El poste, crucemos los dedos.",
+      "Arco libre, corazón contento... hasta el primer tiro.",
+      "El que llegue último, ataja. Clásico de potrero.",
+      "Van a cobrar más goles que likes.",
+      "Plan maestro: meter uno más que el rival.",
+      "Sin uno bajo los palos, esto es a todo o nada.",
+      "El arco lo cuida San Cayetano.",
+      "Se define por penales… y sin arquero, uf.",
+      "Defensa heroica o goleada histórica. No hay medias tintas.",
+    ],
+    dobleArquero: [
+      "Dos arqueros: uno ataja, el otro mira el partido.",
+      "Muralla doble atrás… ¿y los goles quién los mete?",
+      "No entra ni el aire, pero tampoco sale una jugada.",
+      "Fort Knox en el arco, desierto en el ataque.",
+      "Sobran guantes, faltan botines de killer.",
+      "Con dos '1' no te hacen goles… ni vos tampoco.",
+      "Arco blindado. Ahora, a ver si la pasan de mitad de cancha.",
+    ],
+    ofensivo: [
+      "Todos adelante: o golean o los golean.",
+      "Defensa es una palabra que este equipo no conoce.",
+      "Festival de goles asegurado (para los dos arcos).",
+      "Sacan del medio y ya están en el área rival.",
+      "Puro ataque, el fondo lo cuida la buena suerte.",
+      "Nueve killers y un valiente atrás.",
+      "Juegan como si el arco propio no existiera.",
+      "Van a ganar 7 a 6 o no van a ganar.",
+      "Ataque, ataque y después Dios proveerá.",
+    ],
+    defensivo: [
+      "Cerrojo total: entran con pelota y todo o no entran.",
+      "Autobús estacionado frente al arco.",
+      "0 a 0 y a cobrar. Filosofía italiana pura.",
+      "Van a aburrir al rival hasta que se equivoque.",
+      "Defienden hasta el kiosco de la esquina.",
+      "Catenaccio de barrio, marca personal al que pase.",
+      "El que quiera un gol, que lo pida por favor.",
+      "Muralla china, versión fútbol 5.",
+    ],
+    comodin: [
+      "Todos hacen de todo… o nadie hace nada.",
+      "Equipo camaleón: cambian de puesto cada cinco minutos.",
+      "Formación líquida: se acomoda sola sobre la marcha.",
+      "Van a rotar tanto que se marean ellos mismos.",
+      "Multiuso FC: hoy defiendo, mañana la clavo al ángulo.",
+      "Táctica oficial: 'que cada uno vea'.",
+      "Sin puestos fijos, puro corazón y despelote.",
+      "El DT rival no sabe a quién marcar. Nosotros tampoco.",
+    ],
+    equilibrado: [
+      "Equipo de manual: parados como Dios manda.",
+      "Bien plantados, esto puede ser lindo de ver.",
+      "Arquero, fondo y gente arriba: respeto absoluto.",
+      "Equilibrio perfecto, peligro real.",
+      "Nada que envidiarle a la Scaloneta.",
+      "Cada uno en su puesto. A jugar tranquilos.",
+      "De taquito o al pie, este equipo está listo.",
+      "Formación seria: acá se vino a ganar.",
+    ],
+  };
+
+  function categoriaEquipo(arr) {
+    const n = (rol) => arr.filter(a => a.rol === rol).length;
+    const gk = n("Arquero"), df = n("Defensa"), at = n("Ataque"), cm = n("Donde sea");
+    if (gk === 0) return "sinArquero";
+    if (gk >= 2) return "dobleArquero";
+    if (at > df + 1) return "ofensivo";
+    if (df > at + 1) return "defensivo";
+    if (cm >= Math.max(df, at) && cm >= 2) return "comodin";
+    return "equilibrado";
+  }
+
+  // Cache por equipo: re-sortea la frase solo cuando cambia la formación,
+  // así se mantiene estable en re-renders que no tocan ese equipo.
+  const fraseCache = { A: null, B: null };
+  function fraseEquipo(arr, eq) {
+    const cat = categoriaEquipo(arr);
+    const sig = arr.map(a => a.rol).sort().join(",") + "|" + cat;
+    if (eq && fraseCache[eq] && fraseCache[eq].sig === sig) return fraseCache[eq].frase;
+    const pool = FRASES_EQUIPO[cat];
+    const frase = pool[Math.floor(Math.random() * pool.length)];
+    if (eq) fraseCache[eq] = { sig, frase };
+    return frase;
+  }
+
+  function confirmarEquipos() {
+    const tits = anotados.filter(a => a.titular);
+    const A = tits.filter(a => a.equipo === "A");
+    const B = tits.filter(a => a.equipo === "B");
+    const columna = (dot, nombre, arr, eq) =>
+      `<div class="card pad"><p class="group-title" style="padding:0;">${dot} ${nombre} (${arr.length})</p>
+        ${arr.map(a => `<div class="anot" style="padding:6px 0;">${rolIco(a.rol)} ${a.n}</div>`).join("")}
+        ${radarEquipo(arr)}
+        <p class="sub center" style="margin:6px 0 0; font-size:12px;">${fraseEquipo(arr, eq)}</p>
+      </div>`;
+    document.getElementById("finalTeams").innerHTML =
+      columna("🔵", nombresEquipos.A, A, "A") + columna("🔴", nombresEquipos.B, B, "B");
+    document.getElementById("finalResumen").textContent =
+      document.getElementById("resumen").textContent;
+    document.getElementById("wspEquipos").innerHTML =
+      `⚽ <strong>Equipos confirmados</strong><br>` +
+      `🔵 ${nombresEquipos.A}: ${A.map(a => a.n).join(", ")}<br>` +
+      `🔴 ${nombresEquipos.B}: ${B.map(a => a.n).join(", ")}<br>` +
+      `¡Nos vemos en la cancha!` +
+      `<span class="hora">21:40 ✓✓</span>`;
+    go("equiposFinal");
+  }
+
+  function copiarEquipos(btn) {
+    const txt = document.getElementById("wspEquipos").innerText;
+    (navigator.clipboard ? navigator.clipboard.writeText(txt) : Promise.reject())
+      .then(() => { btn.textContent = "¡Copiado!"; setTimeout(() => btn.textContent = "Copiar mensaje", 1600); })
+      .catch(() => { btn.textContent = "Copiá manual"; setTimeout(() => btn.textContent = "Copiar mensaje", 1600); });
+  }
+
+  // ----- Post partido: resultado, goleadores, lesiones e infracciones -----
+  // Lo puede cargar cualquiera que jugó (el UC es quien lo tiene más a mano).
+  // El marcador NO se tipea: se deriva de los goles que cargás por jugador,
+  // más los "goles sin autor" (en contra, o no se sabe quién la metió).
+  const golesOtros = { A: 0, B: 0 };
+
+  // El "gol sin autor" tiene frase rotativa con humor futbolero: se sortean
+  // dos distintas (una por equipo) cada vez que se abre la carga de resultado.
+  const FRASES_GOL_ANONIMO = [
+    "No sé quién lo hizo, pero entró",
+    "Gol de nadie... pero gol al fin",
+    "La empujó alguien, quién sabe quién",
+    "Entró sola (dicen)",
+    "Gol fantasma: nadie lo pide",
+    "Autor desconocido, festejo colectivo",
+    "Fue en contra o fue de Dios",
+    "La metió el viento",
+    "Gol huérfano: nadie lo reclama",
+    "Tocó en todos y entró",
+    "El VAR no llegó a este partido",
+    "Gol anónimo, como las buenas obras",
+    "Nadie la pidió, todos la gritaron",
+    "Entró de rebote, cuenta igual",
+  ];
+  let fraseGolAnonimo = { A: FRASES_GOL_ANONIMO[0], B: FRASES_GOL_ANONIMO[1] };
+  function sortearFrasesGol() {
+    const i = Math.floor(Math.random() * FRASES_GOL_ANONIMO.length);
+    let j = Math.floor(Math.random() * FRASES_GOL_ANONIMO.length);
+    while (j === i) j = Math.floor(Math.random() * FRASES_GOL_ANONIMO.length);
+    fraseGolAnonimo = { A: FRASES_GOL_ANONIMO[i], B: FRASES_GOL_ANONIMO[j] };
+  }
+
+  // Pelota blanca y negra (SVG propio: el emoji ⚽ se ve azul/raro en Windows).
+  // Tocarla SUMA un gol; el "−" recién aparece cuando hay algo para borrar.
+  const BALL = `<svg viewBox="0 0 24 24" width="19" height="19" style="display:block;" aria-hidden="true">
+    <circle cx="12" cy="12" r="10.6" fill="#ffffff" stroke="#1b1b1b" stroke-width="1.4"/>
+    <g fill="#1b1b1b" stroke="#1b1b1b" stroke-width="0.6" stroke-linejoin="round">
+      <polygon points="12,8.8 15.04,11.01 13.88,14.59 10.12,14.59 8.96,11.01"/>
+      <g><line x1="12" y1="8.8" x2="12" y2="6" stroke-width="0.9"/><polygon points="12,6 9.72,4.34 10.59,1.66 13.41,1.66 14.28,4.34"/></g>
+      <g transform="rotate(72 12 12)"><line x1="12" y1="8.8" x2="12" y2="6" stroke-width="0.9"/><polygon points="12,6 9.72,4.34 10.59,1.66 13.41,1.66 14.28,4.34"/></g>
+      <g transform="rotate(144 12 12)"><line x1="12" y1="8.8" x2="12" y2="6" stroke-width="0.9"/><polygon points="12,6 9.72,4.34 10.59,1.66 13.41,1.66 14.28,4.34"/></g>
+      <g transform="rotate(216 12 12)"><line x1="12" y1="8.8" x2="12" y2="6" stroke-width="0.9"/><polygon points="12,6 9.72,4.34 10.59,1.66 13.41,1.66 14.28,4.34"/></g>
+      <g transform="rotate(288 12 12)"><line x1="12" y1="8.8" x2="12" y2="6" stroke-width="0.9"/><polygon points="12,6 9.72,4.34 10.59,1.66 13.41,1.66 14.28,4.34"/></g>
+    </g>
+  </svg>`;
+
+  function abrirPost() {
+    sortearFrasesGol();
+    anotados.forEach(a => {
+      if (a.goles === undefined) a.goles = 0;
+      if (a.lesionado === undefined) a.lesionado = false;
+      if (a.tarjeta === undefined) a.tarjeta = null;
+    });
+    renderPost();
+    go("postpartido");
+  }
+
+  const golesEquipo = (eq) =>
+    anotados.filter(a => a.equipo === eq).reduce((s, a) => s + a.goles, 0) + golesOtros[eq];
+
+  function addGol(id, d) {
+    const a = anotados.find(x => x.id === id);
+    if (a) { a.goles = Math.max(0, a.goles + d); renderPost(); }
+  }
+  function addOtroGol(eq, d) {
+    golesOtros[eq] = Math.max(0, golesOtros[eq] + d);
+    renderPost();
+  }
+  function toggleLesion(id) {
+    const a = anotados.find(x => x.id === id);
+    if (a) { a.lesionado = !a.lesionado; renderPost(); }
+  }
+  // Sin tarjeta → 🟨 amarilla → 🟥 roja → sin tarjeta
+  function cicloTarjeta(id) {
+    const a = anotados.find(x => x.id === id);
+    if (!a) return;
+    a.tarjeta = a.tarjeta === null ? "amarilla" : a.tarjeta === "amarilla" ? "roja" : null;
+    renderPost();
+  }
+  const icoTarjeta = (t) => t === "roja" ? "🟥" : t === "amarilla" ? "🟨" : "⬜";
+
+  function renderPost() {
+    const gA = golesEquipo("A"), gB = golesEquipo("B");
+    const veredicto = gA === gB
+      ? `🤝 Empate ${gA} - ${gB}`
+      : gA > gB
+        ? `🏆 Ganó ${nombresEquipos.A} ${gA} - ${gB}`
+        : `🏆 Ganó ${nombresEquipos.B} ${gB} - ${gA}`;
+    document.getElementById("marcador").innerHTML =
+      `<div class="score">
+        <div><div class="n">${gA}</div><div class="t">${nombresEquipos.A}</div></div>
+        <div style="font-size:22px; color:#b0b0b0;">-</div>
+        <div><div class="n">${gB}</div><div class="t">${nombresEquipos.B}</div></div>
+      </div>
+      <p class="center" style="margin:10px 0 0; font-weight:600; color:var(--verde-acento);">${veredicto}</p>`;
+
+    const botonPelota = (goles, clickMenos, clickMas) =>
+      `${goles > 0 ? `<button class="mini" style="margin-left:0;" onclick="${clickMenos}" title="Quitar gol">−</button>` : ""}
+       <button class="mini" style="margin-left:0; display:flex; align-items:center; gap:5px; background:#fff;" onclick="${clickMas}" title="¡Gol!">
+         ${BALL}<span style="font-weight:700; font-size:13px; min-width:10px;">${goles}</span>
+       </button>`;
+    const btns = (a) =>
+      `<span style="display:flex; align-items:center; gap:4px;">
+        ${botonPelota(a.goles, `addGol(${a.id},-1)`, `addGol(${a.id},1)`)}
+        <button class="mini ${a.lesionado ? "up" : ""}" style="margin-left:0;" onclick="toggleLesion(${a.id})" title="Lesión">🤕</button>
+        <button class="mini ${a.tarjeta ? "up" : ""}" style="margin-left:0;" onclick="cicloTarjeta(${a.id})" title="Infracción">${icoTarjeta(a.tarjeta)}</button>
+      </span>`;
+
+    document.getElementById("postEquipos").innerHTML = ["A", "B"].map(eq => {
+      const arr = anotados.filter(a => a.equipo === eq);
+      return `<div style="margin-bottom:16px;">
+        <p class="label" style="padding:0;">${eq === "A" ? "🔵" : "🔴"} ${nombresEquipos[eq]}</p>
+        <div class="card">
+          ${arr.map(a => `<div class="anot" style="gap:6px;">
+            <span style="flex:1; min-width:0; overflow:hidden; text-overflow:ellipsis;">${rolIco(a.rol)} ${a.n}</span>
+            ${btns(a)}
+          </div>`).join("")}
+          <div class="anot" style="gap:6px;">
+            <span style="flex:1; color:var(--muted); font-weight:400; font-size:13px;">${fraseGolAnonimo[eq]}</span>
+            <span style="display:flex; align-items:center; gap:4px;">
+              ${botonPelota(golesOtros[eq], `addOtroGol('${eq}',-1)`, `addOtroGol('${eq}',1)`)}
+            </span>
+          </div>
+        </div>
+      </div>`;
+    }).join("");
+  }
+
+  function guardarResultado() {
+    const gA = golesEquipo("A"), gB = golesEquipo("B");
+    const goleadores = anotados.filter(a => a.goles > 0).map(a => `${a.n} (${a.goles})`);
+    const lesionados = anotados.filter(a => a.lesionado).map(a => a.n);
+    const infractores = anotados.filter(a => a.tarjeta).map(a => `${a.n} ${icoTarjeta(a.tarjeta)}`);
+    const veredicto = gA === gB
+      ? `Empatamos ${gA} - ${gB}`
+      : gA > gB
+        ? `Ganaron los ${nombresEquipos.A} ${gA} - ${gB}`
+        : `Ganaron los ${nombresEquipos.B} ${gB} - ${gA}`;
+    document.getElementById("wspResultado").innerHTML =
+      `🏁 <strong>${veredicto}</strong><br>` +
+      (goleadores.length ? `⚽ ${goleadores.join(", ")}<br>` : "") +
+      (lesionados.length ? `🤕 ${lesionados.join(", ")}<br>` : "") +
+      (infractores.length ? `⚠️ ${infractores.join(", ")}<br>` : "") +
+      `¡Gracias por jugar!` +
+      `<span class="hora">23:15 ✓✓</span>`;
+    go("resultadoFinal");
+  }
+
+  function copiarResultado(btn) {
+    const txt = document.getElementById("wspResultado").innerText;
+    (navigator.clipboard ? navigator.clipboard.writeText(txt) : Promise.reject())
+      .then(() => { btn.textContent = "¡Copiado!"; setTimeout(() => btn.textContent = "Copiar mensaje", 1600); })
+      .catch(() => { btn.textContent = "Copiá manual"; setTimeout(() => btn.textContent = "Copiar mensaje", 1600); });
+  }
+
+  // ----- El muro de la banda: partidos como eventos -----
+  // Los futuros para calentar la previa, los pasados para las anécdotas.
+  const muralProximo = {
+    fecha: "Este miércoles · 20:00",
+    lugar: "El Templo, 12 y 60",
+    anotados: 8,
+    minimo: 10,
+    previa: [
+      { n: "Nacho", t: "Esta vez ganamos, lo veo 🔮", org: true },
+      { n: "Seba", t: "Llevo las pecheras nuevas 😎" },
+    ],
+  };
+  const muralPasados = [
+    { fecha: "mié 8 jul", res: "Ganamos 4-2", figura: "⚽ Seba (2)", anecdota: "El Colo atajó un penal con la cara 😂", coment: 7 },
+    { fecha: "mié 1 jul", res: "Empatamos 3-3", figura: "⚽ Dani (2)", anecdota: "Se cortó la luz y terminamos con la linterna del celu 📱", coment: 12 },
+    { fecha: "mié 24 jun", res: "Perdimos 1-5", figura: "⚽ Fer (el del honor)", anecdota: "Mejor no hablar de esa noche 🙈", coment: 4 },
+  ];
+
+  function renderMural() {
+    const p = muralProximo;
+    const faltan = Math.max(0, p.minimo - p.anotados);
+    document.getElementById("muralProximo").innerHTML =
+      `<div class="card pad" style="border-color:rgba(45,106,79,.35);">
+        <div class="match" style="margin-bottom:10px;">
+          <span><span class="big">${p.fecha}</span><br><span class="meta">${p.lugar}</span></span>
+          <span class="tag">${faltan ? "Faltan " + faltan : "✅ ¡Se juega!"}</span>
+        </div>
+        <p class="label" style="padding:0;">🔥 Calentando la previa</p>
+        <div class="card" id="muralPrevia" style="margin-bottom:8px;"></div>
+        <div style="display:flex; gap:8px;">
+          <input type="text" id="previaInput" maxlength="120" placeholder="Tirá una gastada para la previa…"
+            onkeydown="if(event.key==='Enter'){event.preventDefault();comentarPrevia();}" style="flex:1; min-width:0;" />
+          <button class="btn btn-primary" style="width:auto; padding:10px 16px;" onclick="comentarPrevia()">➤</button>
+        </div>
+      </div>`;
+    document.getElementById("muralPrevia").innerHTML = p.previa.map(c =>
+      `<div class="anot ${c.me ? "me" : ""}" style="align-items:flex-start;">
+        <span style="font-size:13px; line-height:1.45;">
+          <strong>${c.n}</strong>${c.org ? ' <span class="tag-org">organizador</span>' : ""}${c.me ? ' <span style="font-size:10px; background:var(--verde-acento); color:#fff; padding:1px 6px; border-radius:4px;">vos</span>' : ""}
+          <br>${c.t}
+        </span>
+      </div>`).join("");
+
+    document.getElementById("muralPasados").innerHTML = muralPasados.map(m => {
+      const gano = m.res.startsWith("Ganamos"), perdio = m.res.startsWith("Perdimos");
+      const color = gano ? "var(--verde-acento)" : perdio ? "#a33" : "#8a7a2a";
+      return `<div class="card pad">
+        <div class="match" style="margin-bottom:6px;">
+          <span><span class="big" style="color:${color};">${m.res}</span><br><span class="meta">${m.fecha} · ${m.figura}</span></span>
+        </div>
+        <p style="margin:0; font-size:13px; font-style:italic; color:var(--texto);">“${m.anecdota}”</p>
+        <p class="sub" style="margin:8px 0 0; font-size:12px;">💬 ${m.coment} comentarios · lo que pasó en la cancha, quedó ahí</p>
+      </div>`;
+    }).join("");
+  }
+
+  function comentarPrevia() {
+    const inp = document.getElementById("previaInput");
+    const t = inp.value.trim().replace(/</g, "&lt;");
+    if (!t) return;
+    muralProximo.previa.push({ n: "Vos", t, me: true });
+    renderMural();
+  }
+
+  renderMiRol();
+  renderFecha();
+  renderMural();
+</script>
+</body>
+</html>

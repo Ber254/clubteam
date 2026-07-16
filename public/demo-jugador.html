@@ -1,0 +1,435 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>ClubTeam · Demo jugador</title>
+<style>
+  :root {
+    --verde-claro: #e8f5e9;
+    --verde-oscuro: #dceddc;
+    --verde-acento: #2d6a4f;
+    --blanco: #ffffff;
+    --texto: #1b1b1b;
+    --muted: #5f6b63;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0; color: var(--texto);
+    font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+    -webkit-font-smoothing: antialiased;
+    background-color: var(--verde-claro);
+    background-image: repeating-linear-gradient(0deg,
+      var(--verde-claro) 0, var(--verde-claro) 72px,
+      var(--verde-oscuro) 72px, var(--verde-oscuro) 144px);
+    min-height: 100vh;
+  }
+  .banner { background: var(--verde-acento); color: #fff; text-align: center; font-size: 12px; padding: 6px; }
+  .app { max-width: 460px; margin: 0 auto; padding: 22px 18px 60px; }
+  .screen { display: none; }
+  .screen.active { display: block; }
+  .stack > * + * { margin-top: 18px; }
+  h1 { font-size: 22px; font-weight: 700; margin: 0; }
+  h2 { font-size: 19px; font-weight: 700; margin: 0; }
+  .sub { color: var(--muted); font-size: 14px; margin: 2px 0 0; }
+  .center { text-align: center; }
+  .btn { display: block; width: 100%; text-align: center; padding: 12px; border-radius: 10px; font-weight: 500; font-size: 15px; cursor: pointer; border: 1px solid transparent; text-decoration: none; }
+  .btn-primary { background: var(--verde-acento); color: #fff; }
+  .btn-primary:hover { opacity: .9; }
+  .btn-primary:disabled { opacity: .5; cursor: default; }
+  .btn-outline { background: #fff; color: var(--texto); border-color: rgba(0,0,0,.12); }
+  .btn-outline:hover { background: #f6f6f6; }
+  .link { background: none; border: 0; color: var(--verde-acento); font-weight: 500; font-size: 14px; cursor: pointer; padding: 0; }
+  .link:hover { text-decoration: underline; }
+  .card { background: #fff; border: 1px solid rgba(0,0,0,.1); border-radius: 12px; }
+  .card.pad { padding: 16px; }
+  .label { font-size: 11px; text-transform: uppercase; letter-spacing: .06em; color: var(--muted); font-weight: 600; margin-bottom: 8px; }
+  input[type=tel], input[type=text] { width: 100%; padding: 12px 14px; border: 1px solid rgba(0,0,0,.15); border-radius: 10px; font-size: 16px; background: #fff; color: var(--texto); outline: none; }
+  input:focus { border-color: var(--verde-acento); }
+  .divider { display: flex; align-items: center; gap: 12px; color: var(--muted); font-size: 12px; }
+  .divider::before, .divider::after { content: ""; height: 1px; flex: 1; background: rgba(0,0,0,.12); }
+  .match { display: flex; align-items: center; justify-content: space-between; gap: 10px; }
+  .match .big { font-size: 18px; font-weight: 600; }
+  .meta { color: var(--muted); font-size: 13px; }
+  .tag { font-size: 11px; background: rgba(45,106,79,.1); color: var(--verde-acento); padding: 2px 7px; border-radius: 5px; }
+  .roles { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+  .role { position: relative; padding: 16px 12px; border: 1px solid rgba(0,0,0,.12); border-radius: 12px; background: #fff; text-align: center; font-weight: 500; cursor: pointer; }
+  .role .ico { font-size: 22px; display: block; margin-bottom: 4px; }
+  .role.sel { border-color: var(--verde-acento); background: rgba(45,106,79,.08); color: var(--verde-acento); }
+  .role .tick { position: absolute; top: 8px; right: 10px; font-size: 13px; opacity: 0; }
+  .role.sel .tick { opacity: 1; }
+  .group-title { font-size: 12px; text-transform: uppercase; letter-spacing: .05em; color: var(--muted); font-weight: 600; margin: 0 0 4px; padding: 0 14px; }
+  .anot { display: flex; align-items: center; gap: 8px; padding: 9px 14px; border-top: 1px solid rgba(0,0,0,.07); }
+  .anot:first-child { border-top: 0; }
+  .anot.me { background: rgba(45,106,79,.06); }
+  .badge-vos { font-size: 10px; background: var(--verde-acento); color: #fff; padding: 1px 6px; border-radius: 4px; }
+  .goal { width: 120px; display: block; margin: 0 auto; }
+</style>
+</head>
+<body>
+<div class="banner">DEMO · experiencia del jugador (UJ) · datos de ejemplo</div>
+<div class="app">
+
+  <!-- ENTRADA: al abrir el link se elige el/los roles directamente -->
+  <section id="rol" class="screen active">
+    <div class="stack">
+      <svg class="goal" viewBox="0 0 320 170" fill="none" stroke="#2d6a4f" stroke-width="2.5">
+        <defs><pattern id="net" width="9" height="9" patternUnits="userSpaceOnUse"><path d="M9 0H0V9" stroke="#2d6a4f" stroke-width="0.7" opacity="0.4"/></pattern></defs>
+        <rect x="128" y="8" width="64" height="22" fill="url(#net)"/>
+        <path d="M14 30 H306" stroke-linecap="round"/>
+        <circle cx="128" cy="30" r="2.5" fill="#2d6a4f" stroke="none"/><circle cx="192" cy="30" r="2.5" fill="#2d6a4f" stroke="none"/>
+        <path d="M104 30 V64 H216 V30"/><path d="M54 30 V122 H266 V30"/>
+        <circle cx="160" cy="94" r="2.5" fill="#2d6a4f" stroke="none"/><path d="M131 122 Q160 146 189 122" stroke-linecap="round"/>
+      </svg>
+      <div class="center">
+        <p class="sub">Te invitaron a jugar</p>
+        <h1>Partido de Los Miércoles FC</h1>
+      </div>
+      <div class="card pad">
+        <div class="match">
+          <span><span class="big">mié 22 jul · 20:00</span><br><span class="meta">El Templo, calle 12 y 60</span></span>
+          <span class="tag">7 anotados</span>
+        </div>
+      </div>
+      <div>
+        <p class="label">¿Dónde jugás? <span style="text-transform:none; letter-spacing:0; font-weight:400; opacity:.7;">— elegí tu puesto</span></p>
+        <div class="roles" id="roles"></div>
+      </div>
+      <button class="btn btn-primary" id="btnAnotar" disabled onclick="anotarme()">Anotarme al partido</button>
+    </div>
+  </section>
+
+  <!-- ACCESO: dos niveles — invitado (UJI) o con cuenta (UJL) -->
+  <section id="ingresar" class="screen">
+    <div class="stack">
+      <button class="link" onclick="go('rol')">← Volver</button>
+      <div>
+        <h2>Ya casi 💪</h2>
+        <p class="sub">Elegí cómo anotarte a este partido.</p>
+      </div>
+
+      <div class="card pad">
+        <p style="margin:0; font-weight:600;">🎭 Como invitado</p>
+        <p class="sub" style="margin:4px 0 10px;">Rápido y sin registro: solo tu nombre. Podés anotarte una sola vez por partido desde este teléfono.</p>
+        <input type="text" id="nombreInvitado" maxlength="30" placeholder="Tu nombre o apodo" oninput="chkInvitado()" />
+        <button class="btn btn-primary" id="btnInvitado" disabled onclick="finalizar('uji')" style="margin-top:10px;">Anotarme y listo</button>
+      </div>
+
+      <div class="divider">o</div>
+
+      <div class="card pad">
+        <p style="margin:0; font-weight:600;">⚽ Con mi cuenta</p>
+        <p class="sub" style="margin:4px 0 10px;">Se guarda todo lo tuyo: goles, historial, rendimiento y tus preferencias de juego.</p>
+        <button class="btn btn-primary" onclick="finalizar('ujl')">Continuar con email</button>
+        <button class="btn btn-outline" onclick="finalizar('ujl')" style="margin-top:8px;">Continuar con Google</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- ESTADO DEL PARTIDO: lo que ve el UJ cada vez que abre el link -->
+  <section id="anotado" class="screen">
+    <div class="stack">
+      <div class="center" id="estadoConfirm">
+        <div style="font-size:40px;">✅</div>
+        <h2>¡Listo, estás anotado!</h2>
+        <p class="sub">Te sumaste como <strong id="mis-roles"></strong>.<br>Guardá el link: cada vez que lo abras vas a ver cómo viene el partido.</p>
+      </div>
+
+      <div class="card pad">
+        <div class="match">
+          <span><span class="big">mié 22 jul · 20:00</span><br><span class="meta">El Templo, calle 12 y 60</span></span>
+          <span class="tag" id="estadoBadge">…</span>
+        </div>
+      </div>
+
+      <div id="estadoNovedad" class="center" style="display:none; background:rgba(45,106,79,.08); color:var(--verde-acento); border-radius:8px; padding:9px 12px; font-weight:500; font-size:14px;"></div>
+
+      <div id="estadoContenido"></div>
+
+      <div>
+        <p class="label" style="padding:0;">💬 El muro del partido</p>
+        <div class="card" id="muro"></div>
+        <div style="display:flex; gap:8px; margin-top:8px;">
+          <input type="text" id="comentarioInput" maxlength="120" placeholder="Dejá tu comentario, reflexión o gastada…"
+            onkeydown="if(event.key==='Enter'){event.preventDefault();comentar();}" style="flex:1; min-width:0;" />
+          <button class="btn btn-primary" style="width:auto; padding:10px 16px;" onclick="comentar()">➤</button>
+        </div>
+        <p class="sub center" style="margin-top:6px; font-size:12px;">Lo que pasa en el partido, queda en el partido 🤫</p>
+      </div>
+
+      <button class="btn btn-outline" onclick="avanzarUC()">▶ Simular: qué hace el organizador</button>
+
+      <div class="card pad center" id="cardUJL" style="display:none; border-color: rgba(45,106,79,.35);">
+        <p style="margin:0; font-weight:600;">Ya tenés tu cuenta en ClubTeam ⚽</p>
+        <p class="sub" style="margin:4px 0 12px;">Vos también podés armar tus propios partidos e invitar a quien quieras.</p>
+        <a class="btn btn-primary" href="/demo.html" style="text-decoration:none;">+ Crear mi partido</a>
+      </div>
+
+      <div class="card pad center" id="cardUJI" style="display:none; border-color: rgba(45,106,79,.35);">
+        <p style="margin:0; font-weight:600;">💾 Tus goles de hoy no se pierden</p>
+        <p class="sub" style="margin:4px 0 12px;">Si creás tu cuenta desde este teléfono, todo lo que hagas como invitado (partidos, goles, rendimiento) pasa a tu perfil.</p>
+        <button class="btn btn-primary" onclick="alert('(Demo) Acá se linkea email/Google a tu sesión de invitado: mismo jugador, historial intacto.')">Crear mi cuenta</button>
+      </div>
+
+      <button class="btn btn-outline" onclick="reiniciar()">↺ Volver a empezar la demo</button>
+    </div>
+  </section>
+
+</div>
+
+<script>
+  // Roles simples, pensados para fútbol 5/7 entre amigos.
+  const ROLES = [
+    { n: "Arquero", ico: "🧤" },
+    { n: "Defensa", ico: "🛡️" },
+    { n: "Ataque", ico: "⚽" },
+    { n: "Donde sea", ico: "🔄" },
+  ];
+  // "Donde sea" se muestra con una frase futbolera distinta en cada iteración.
+  // El valor guardado es siempre el canónico "Donde sea".
+  const FRASES_DONDE_SEA = [
+    "Donde sea","Donde pinte","Donde me necesiten","Donde haga falta","Donde toque",
+    "Donde caiga","Donde falte uno","Donde me manden","Donde diga el DT","Donde haya lugar",
+    "Yo me acomodo","Me da igual, juego","Comodín","Todoterreno","Polifuncional",
+    "Multiuso","Utility","Sin puesto fijo","Puesto libre","Tapo agujeros",
+    "Juego en todas","De 2 a 11","Del arco pa' adelante","Hasta de arquero","Ponéme donde quieras",
+    "A disposición","Que elija el capi","El comodín del mazo","Pieza de recambio","Jugador de rotación",
+    "Me pongo la que sea","Al servicio del equipo","Donde sume","Donde me pongas, rindo","Voy a todas",
+    "Cualquier puesto","Sin drama, donde sea","Donde quiera el equipo","Titular donde sea","Me adapto",
+    "Camaleón","El que tapa huecos","Toco y me acomodo","Puesto: sí","Vengo a jugar nomás",
+    "El plan B de todos","Donde el partido pida","Falso 9... y falso todo","Libre, a lo líbero","Donde ataje o meta gol",
+  ];
+  let fraseActual = FRASES_DONDE_SEA[Math.floor(Math.random() * FRASES_DONDE_SEA.length)];
+  const etiqueta = (rol) => rol === "Donde sea" ? fraseActual : rol;
+  const ANOTADOS_BASE = [
+    { n: "Colo", rol: "Arquero" },
+    { n: "Tincho", rol: "Defensa" },
+    { n: "Dani", rol: "Defensa" },
+    { n: "Nacho", rol: "Ataque", org: true },
+    { n: "Seba", rol: "Donde sea" },
+    { n: "Fer", rol: "Ataque" },
+    { n: "Juanma", rol: "Ataque" },
+  ];
+  // Gente que se va sumando cuando el organizador "mueve" el partido.
+  const POOL_EXTRA = [
+    { n: "Rulo", rol: "Defensa" }, { n: "Chino", rol: "Defensa" },
+    { n: "Pipa", rol: "Arquero" }, { n: "Toto", rol: "Ataque" },
+    { n: "Lea", rol: "Donde sea" }, { n: "Mati", rol: "Ataque" },
+    { n: "Facu", rol: "Donde sea" }, { n: "Ramita", rol: "Ataque" },
+  ];
+  let anotados = [...ANOTADOS_BASE];
+  let miRol = null;
+
+  // Estado del partido, tal como lo ve el UJ cada vez que abre el link.
+  const MINIMO = 10;
+  let miNombre = "Vos";
+  let miEquipo = null;
+  let faseUC = "convocando"; // convocando | sejuega | equipos | jugado
+  let equipos = { A: [], B: [] };
+  let marcador = { A: 0, B: 0 };
+
+  function go(id) {
+    document.querySelectorAll(".screen").forEach(s => s.classList.remove("active"));
+    document.getElementById(id).classList.add("active");
+    window.scrollTo(0, 0);
+  }
+
+  function renderRoles() {
+    document.getElementById("roles").innerHTML = ROLES.map(r =>
+      `<div class="role" data-rol="${r.n}" onclick="pickRol('${r.n}')">
+        <span class="tick">✓</span><span class="ico">${r.ico}</span>${etiqueta(r.n)}
+      </div>`).join("");
+  }
+  function pickRol(n) {
+    miRol = n;
+    document.querySelectorAll(".role").forEach(e => e.classList.toggle("sel", e.dataset.rol === n));
+    document.getElementById("btnAnotar").disabled = false;
+  }
+
+  function anotarme() {
+    if (!miRol) return;
+    go("ingresar");
+  }
+
+  // Dos niveles de UJ:
+  //  - 'uji' (invitado): sesión anónima ("cookie inteligente"), solo nombre.
+  //  - 'ujl' (con cuenta): email/Google, guarda historial y preferencias.
+  let modoAcceso = null;
+
+  function chkInvitado() {
+    document.getElementById("btnInvitado").disabled =
+      document.getElementById("nombreInvitado").value.trim().length < 2;
+  }
+
+  function finalizar(modo) {
+    modoAcceso = modo;
+    miNombre = modo === "uji"
+      ? (document.getElementById("nombreInvitado").value.trim() || "Vos")
+      : "Vos";
+    // Te sumás a la lista REAL del partido (con tu marca "vos")
+    if (!anotados.some(a => a.me)) {
+      anotados.push({ n: miNombre, rol: miRol, me: true });
+    }
+    document.getElementById("mis-roles").textContent = etiqueta(miRol);
+    document.getElementById("cardUJL").style.display = modo === "ujl" ? "block" : "none";
+    document.getElementById("cardUJI").style.display = modo === "uji" ? "block" : "none";
+    document.getElementById("estadoConfirm").style.display = "block";
+    document.getElementById("estadoNovedad").style.display = "none";
+    faseUC = anotados.length >= MINIMO ? "sejuega" : "convocando";
+    renderEstado();
+    renderMuro();
+    go("anotado");
+  }
+
+  // Muro del partido: comentarios que quedan EN el partido.
+  // "Lo que pasa en el partido, queda en el partido."
+  const COMENTARIOS_BASE = [
+    { n: "Nacho", t: "El que no viene banca la próxima 😤", org: true },
+    { n: "Seba", t: "Yo llevo la pelota 🙌" },
+  ];
+  let comentarios = [...COMENTARIOS_BASE];
+
+  function renderMuro() {
+    document.getElementById("muro").innerHTML = comentarios.map(c =>
+      `<div class="anot ${c.me ? "me" : ""}" style="align-items:flex-start;">
+        <span style="font-size:13px; line-height:1.45;">
+          <strong>${c.n}</strong>
+          ${c.org ? ' <span class="tag">organizador</span>' : ""}
+          ${c.me ? ' <span class="badge-vos">vos</span>' : ""}
+          <br>${c.t}
+        </span>
+      </div>`).join("");
+  }
+  function comentar() {
+    const inp = document.getElementById("comentarioInput");
+    const t = inp.value.trim().replace(/</g, "&lt;");
+    if (!t) return;
+    comentarios.push({ n: miNombre, t, me: true });
+    inp.value = "";
+    renderMuro();
+  }
+
+  function filaAnot(a) {
+    return `<div class="anot ${a.me ? "me" : ""}">
+      <span style="font-weight:500;font-size:14px;">${a.n}</span>
+      ${a.me ? '<span class="badge-vos">vos</span>' : ""}
+      ${a.org ? '<span class="tag">organizador</span>' : ""}
+    </div>`;
+  }
+
+  // La vista viva del partido: cambia según lo que hizo el organizador.
+  function renderEstado() {
+    const badge = document.getElementById("estadoBadge");
+    const cont = document.getElementById("estadoContenido");
+    const n = anotados.length;
+
+    if (faseUC === "convocando" || faseUC === "sejuega") {
+      badge.textContent = faseUC === "sejuega" ? "✅ ¡Se juega!" : `Faltan ${Math.max(0, MINIMO - n)}`;
+      cont.innerHTML =
+        `<p class="label" style="padding:0;">Anotados (${n})</p>
+         <div class="card">` +
+        ROLES.map(r => {
+          const gente = anotados.filter(a => a.rol === r.n);
+          if (!gente.length) return "";
+          return `<div style="padding:8px 0;">
+            <p class="group-title">${r.ico} ${etiqueta(r.n)} (${gente.length})</p>
+            ${gente.map(filaAnot).join("")}
+          </div>`;
+        }).join("") + `</div>`;
+    } else {
+      badge.textContent = faseUC === "jugado" ? "🏁 Jugado" : "🧩 Equipos armados";
+      const col = (eq) => `<div class="card pad">
+          <p class="group-title" style="padding:0;">${eq === "A" ? "🔵" : "🔴"} ${eq === miEquipo ? "Tu equipo" : "Rival"} (${equipos[eq].length})</p>
+          ${equipos[eq].map(filaAnot).join("")}
+        </div>`;
+      let head = `<p class="center" style="font-weight:600; color:var(--verde-acento); margin:0 0 12px;">Jugás en el equipo ${miEquipo === "A" ? "🔵" : "🔴"}</p>`;
+      if (faseUC === "jugado") {
+        const miGoles = marcador[miEquipo], rivalGoles = marcador[miEquipo === "A" ? "B" : "A"];
+        const res = miGoles === rivalGoles ? "🤝 Empate" : miGoles > rivalGoles ? "🎉 ¡Ganaron!" : "😖 Perdieron";
+        head = `<div class="card pad center" style="margin-bottom:12px;">
+            <div style="display:flex; justify-content:center; gap:16px; align-items:center;">
+              <div style="font-size:30px; font-weight:700;">${marcador.A}</div>
+              <div style="color:#b0b0b0;">-</div>
+              <div style="font-size:30px; font-weight:700;">${marcador.B}</div>
+            </div>
+            <p style="margin:8px 0 0; font-weight:600; color:var(--verde-acento);">${res}</p>
+            <p class="sub" style="margin:8px 0 0; font-size:12px;">Cargado por Nacho (organizador) ·
+              <button class="link" style="font-size:12px;" onclick="novedad('📨 Tu pedido de corrección le llegó al organizador.')">¿No está bien? Pedir corrección</button>
+            </p>
+          </div>`;
+      }
+      cont.innerHTML = head + `<div class="roles">${col("A")}${col("B")}</div>`;
+    }
+  }
+
+  function novedad(txt) {
+    const el = document.getElementById("estadoNovedad");
+    el.style.display = "block";
+    el.textContent = txt;
+    // Tras la primera novedad, ocultamos la bienvenida: se siente como
+    // "volver a abrir el link" y encontrarlo actualizado.
+    document.getElementById("estadoConfirm").style.display = "none";
+  }
+
+  function armarEquipos() {
+    const mezcla = [...anotados];
+    for (let i = mezcla.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [mezcla[i], mezcla[j]] = [mezcla[j], mezcla[i]];
+    }
+    equipos = { A: [], B: [] };
+    mezcla.forEach((a, i) => (i % 2 === 0 ? equipos.A : equipos.B).push(a));
+    miEquipo = equipos.A.some(a => a.me) ? "A" : "B";
+  }
+
+  function avanzarUC() {
+    if (faseUC === "convocando") {
+      const libres = POOL_EXTRA.filter(p => !anotados.some(a => a.n === p.n));
+      const suman = libres.slice(0, 1 + Math.floor(Math.random() * 2));
+      suman.forEach(p => anotados.push({ ...p }));
+      novedad(`📣 Se ${suman.length === 1 ? "sumó" : "sumaron"} ${suman.map(p => p.n).join(", ")}.`);
+      if (anotados.length >= MINIMO) {
+        faseUC = "sejuega";
+        novedad("🔥 ¡Se llegó al mínimo, el partido se juega!");
+      }
+    } else if (faseUC === "sejuega") {
+      armarEquipos();
+      faseUC = "equipos";
+      novedad(`🧩 El organizador armó los equipos. Quedaste en el ${miEquipo === "A" ? "🔵" : "🔴"}.`);
+      comentarios.push({ n: "Fer", t: "Uh, me tocó marcar al mejor otra vez 😩" });
+    } else if (faseUC === "equipos") {
+      marcador = { A: Math.floor(Math.random() * 5), B: Math.floor(Math.random() * 5) };
+      faseUC = "jugado";
+      const miGoles = marcador[miEquipo], rivalGoles = marcador[miEquipo === "A" ? "B" : "A"];
+      novedad(`🏁 Se cargó el resultado: ${miGoles > rivalGoles ? "ganaron" : miGoles < rivalGoles ? "perdieron" : "empataron"}.`);
+      comentarios.push({ n: "Colo", t: "El último gol fue en contra, que conste en actas 📝" });
+    } else {
+      novedad("✔️ El partido ya terminó. ¡Nos vemos en el próximo!");
+    }
+    renderEstado();
+    renderMuro();
+  }
+
+  function reiniciar() {
+    miRol = null;
+    modoAcceso = null;
+    anotados = [...ANOTADOS_BASE];
+    comentarios = [...COMENTARIOS_BASE];
+    document.getElementById("comentarioInput").value = "";
+    faseUC = "convocando";
+    miEquipo = null;
+    equipos = { A: [], B: [] };
+    marcador = { A: 0, B: 0 };
+    document.getElementById("nombreInvitado").value = "";
+    document.getElementById("btnInvitado").disabled = true;
+    document.getElementById("btnAnotar").disabled = true;
+    // Nueva iteración del flujo: rota la frase de "Donde sea"
+    fraseActual = FRASES_DONDE_SEA[Math.floor(Math.random() * FRASES_DONDE_SEA.length)];
+    renderRoles();
+    go("rol");
+  }
+
+  renderRoles();
+</script>
+</body>
+</html>
