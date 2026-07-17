@@ -282,9 +282,12 @@
             </div>
           </div>
 
-          <div class="invite">
-            <code id="linkTxt">http://localhost:3001/p/x7k2m9</code>
-            <button onclick="copiarLink(this)">Copiar</button>
+          <div>
+            <p class="label" style="padding:0;">📲 Copiá este link y pegalo en el grupo</p>
+            <div class="invite">
+              <code id="linkTxt">http://localhost:3001/p/x7k2m9</code>
+              <button onclick="copiarLink(this)">Copiar</button>
+            </div>
           </div>
           <p id="avisoBanda" style="display:none; margin:8px 0 0; background:rgba(45,106,79,.08); color:var(--verde-acento); border-radius:8px; padding:10px 12px; font-size:13px;"></p>
         </div>
@@ -433,6 +436,53 @@
   let minimo = 10;
   let resumenPartido = ""; // fecha/lugar/mínimo, para la pantalla de equipos
   let ucJuega = true;
+
+  // Lo que se copia NO es el link pelado: es una arenga lista para pegar.
+  // El DT no necesita ver el preview, lo ve cuando lo pega.
+  const ARENGAS = [
+    "No te cagues, vení al partido 😤",
+    "Faltás vos. Sí, vos.",
+    "Dejá el sillón, se juega ⚽",
+    "El que no viene, banca la próxima 😤",
+    "Se arma. ¿Estás o mirás?",
+    "Nos falta uno. Ese uno sos vos.",
+    "Hay fecha. No hay excusas.",
+    "¿Jugás o te hacés el ocupado?",
+    "Movete que hay partido 🔥",
+    "Traé las ganas, la pelota la llevo yo",
+    "El pasto te extraña 🌱",
+    "Partido confirmado. Tu excusa, no.",
+    "Vení a jugar, después dormís",
+    "Se juega igual… mejor con vos",
+    "Anotate antes de que te ganen el puesto",
+    "Dale que se llena 🔥",
+    "La cancha está esperando 🏟️",
+    "Che, ¿jugás? Decí que sí y listo",
+    "Sin vos no somos nada (mentira, pero vení)",
+    "Menos charla y más fútbol ⚽",
+  ];
+  let partidoCuandoMsg = "";
+  let partidoLugarMsg = "";
+
+  // "hoy a las 20:00" / "mañana a las 21:00" / "el miércoles a las 20:00"
+  function cuandoParaMensaje() {
+    const h = hoy();
+    const manana = new Date(h);
+    manana.setDate(h.getDate() + 1);
+    const igual = (a, b) => a.getTime() === b.getTime();
+    const hora = horaActual();
+    if (igual(fechaSel, h)) return `hoy a las ${hora}`;
+    if (igual(fechaSel, manana)) return `mañana a las ${hora}`;
+    return `el ${fechaSel.toLocaleDateString("es-AR", { weekday: "long" })} a las ${hora}`;
+  }
+
+  function mensajeArenga() {
+    const arenga = ARENGAS[Math.floor(Math.random() * ARENGAS.length)];
+    const link = document.getElementById("linkTxt").textContent;
+    return `${arenga}\n` +
+      `Jugamos ${partidoCuandoMsg}${partidoLugarMsg ? " en " + partidoLugarMsg : ""}.\n` +
+      `Anotate y elegí tu puesto 👉 ${link}`;
+  }
   let ucRol = "Donde sea";
 
   // Cada anotado: { id, n (nombre), rol, org, titular }.
@@ -610,6 +660,8 @@
     const cancha = document.getElementById("cancha").value.trim();
     // Se guarda para la pantalla de equipos (ya no se muestra acá)
     resumenPartido = cuando + (cancha ? " · " + cancha : "") + " · mínimo " + minimo;
+    partidoCuandoMsg = cuandoParaMensaje();
+    partidoLugarMsg = cancha;
     document.getElementById("minTxt").textContent = minimo;
     // El partido nuevo bautiza (o re-bautiza) la banda que se arme
     ultimoPartido = {
@@ -642,7 +694,7 @@
   }
 
   function copiarLink(btn) {
-    const txt = document.getElementById("linkTxt").textContent;
+    const txt = mensajeArenga();
     (navigator.clipboard ? navigator.clipboard.writeText(txt) : Promise.reject())
       .then(() => { btn.textContent = "¡Copiado!"; setTimeout(() => btn.textContent = "Copiar", 1600); })
       .catch(() => { btn.textContent = "Copiá manual"; setTimeout(() => btn.textContent = "Copiar", 1600); });
@@ -1329,6 +1381,8 @@
     const p = muralProximo;
     minimo = p.minimo;
     resumenPartido = `${p.fecha} · ${p.lugar} · mínimo ${p.minimo}`;
+    partidoCuandoMsg = p.fecha.toLowerCase().replace("·", "a las").trim();
+    partidoLugarMsg = p.lugar;
     document.getElementById("minTxt").textContent = p.minimo;
     document.getElementById("avisoBanda").style.display = "none";
 
