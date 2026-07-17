@@ -1337,12 +1337,12 @@
       return `<div style="margin-bottom:16px;">
         <p class="label" style="padding:0;">${eq === "A" ? "🔵" : "🔴"} ${nombresEquipos[eq]}</p>
         <div class="card">
-          ${arr.map(a => `<div class="anot" style="gap:6px;">
-            <span style="flex:1; min-width:0; overflow:hidden; text-overflow:ellipsis;">${rolIco(a.rol)} ${a.n}</span>
+          ${arr.map(a => `<div class="anot" style="flex-direction:column; align-items:stretch; gap:6px;">
+            <span style="min-width:0; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; font-weight:500;">${rolIco(a.rol)} ${a.n}</span>
             ${btns(a)}
           </div>`).join("")}
-          <div class="anot" style="gap:6px;">
-            <span style="flex:1; color:var(--muted); font-weight:400; font-size:13px;">${fraseGolAnonimo[eq]}</span>
+          <div class="anot" style="flex-direction:column; align-items:stretch; gap:6px;">
+            <span style="color:var(--muted); font-weight:400; font-size:13px;">${fraseGolAnonimo[eq]}</span>
             <span style="display:flex; align-items:center; gap:4px;">
               ${botonPelota(golesOtros[eq], `addOtroGol('${eq}',-1)`, `addOtroGol('${eq}',1)`)}
             </span>
