@@ -296,6 +296,8 @@
             <div class="bar"><div id="barFill"></div></div>
           </div>
 
+          <button class="btn btn-primary btn-armar" style="display:none;" onclick="abrirArmador()">Armar equipos</button>
+
           <div id="lobbyWrap">
             <div class="empty" id="lobbyEmpty">Todavía no se anotó nadie. Compartí el link en el grupo 📲</div>
             <div style="display:none;" id="lobbyFull">
@@ -305,6 +307,7 @@
                 <p class="label" style="padding:0;">Suplentes <span style="text-transform:none; letter-spacing:0; font-weight:400; opacity:.7;">— por orden de llegada</span></p>
                 <div id="suplentes"></div>
               </div>
+              <button class="btn btn-primary btn-armar" style="display:none; margin-top:14px;" onclick="abrirArmador()">Armar equipos</button>
             </div>
           </div>
 
@@ -332,7 +335,6 @@
       </div>
 
       <button class="btn btn-outline" id="btnSim" onclick="simular()">▶ Simular que se anotan jugadores</button>
-      <button class="btn btn-primary" id="btnEquipos" style="display:none;" onclick="abrirArmador()">Armar equipos</button>
 
       <div class="card pad center" style="border-color: rgba(45,106,79,.35);">
         <p style="margin:0; font-weight:600;">💾 Tu partido vive en este teléfono</p>
@@ -781,7 +783,7 @@
 
     document.getElementById("lobbyEmpty").style.display = anotados.length === 0 ? "block" : "none";
     document.getElementById("lobbyFull").style.display = anotados.length === 0 ? "none" : "block";
-    document.getElementById("btnEquipos").style.display = completo ? "block" : "none";
+    document.querySelectorAll(".btn-armar").forEach(b => b.style.display = completo ? "block" : "none");
     document.getElementById("btnSim").style.display =
       anotados.length >= POOL.length + 1 ? "none" : "block";
 
