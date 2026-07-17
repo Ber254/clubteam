@@ -4,6 +4,9 @@
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>ClubTeam · Demo creación de partido</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Caveat:wght@600&display=swap" rel="stylesheet" />
 <style>
   :root {
     --verde-claro: #e8f5e9;
@@ -124,10 +127,24 @@
     background: rgba(0,0,0,.18);
   }
   .papel {
+    position: relative;
     background: #fffdf5; border-radius: 3px; padding: 16px 14px;
     box-shadow: 0 2px 6px rgba(0,0,0,.22);
   }
   .papel > * + * { margin-top: 14px; }
+  /* Anotaciones informales al margen: como escritas a mano por el DT.
+     Sutiles, periféricas, no interactúan (pointer-events:none). */
+  .doodle { font-family: "Caveat", "Segoe Script", cursive; color: #6f6f6f; line-height: 1; }
+  .doodles {
+    display: flex; align-items: center; justify-content: space-around; gap: 12px;
+    margin-top: 16px; opacity: .42; pointer-events: none; user-select: none;
+  }
+  .doodle-esquina {
+    position: absolute; top: 8px; right: 10px;
+    font-family: "Caveat", "Segoe Script", cursive; color: #6f6f6f;
+    font-size: 18px; transform: rotate(7deg); opacity: .3;
+    pointer-events: none; user-select: none;
+  }
 
   /* El nombre de la banda como un trapo de cancha: tela verde, letras
      pintadas en blanco, borde por dentro y ojales en las esquinas. */
@@ -290,7 +307,19 @@
             </div>
           </div>
           <p id="avisoBanda" style="display:none; margin:8px 0 0; background:rgba(45,106,79,.08); color:var(--verde-acento); border-radius:8px; padding:10px 12px; font-size:13px;"></p>
+
+          <div class="doodles" aria-hidden="true">
+            <span class="doodle" id="doodleForm" style="font-size:26px; transform:rotate(-5deg);">4-3-3</span>
+            <svg width="60" height="40" viewBox="0 0 60 40" fill="none" stroke="#6f6f6f" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" style="transform:rotate(-3deg);">
+              <circle cx="9" cy="30" r="4"/>
+              <path d="M6 8 L14 16 M14 8 L6 16"/>
+              <path d="M14 28 C 27 9, 40 34, 52 13" stroke-dasharray="3 3"/>
+              <path d="M52 13 l-6 1 m6 -1 l-1 -6"/>
+            </svg>
+            <span class="doodle" id="doodleFrase" style="font-size:18px; transform:rotate(2deg);">dale q se puede</span>
+          </div>
         </div>
+        <span class="doodle-esquina" id="doodleEsquina">¡vamos!</span>
       </div>
 
       <button class="btn btn-outline" id="btnSim" onclick="simular()">▶ Simular que se anotan jugadores</button>
@@ -474,6 +503,17 @@
     if (igual(fechaSel, h)) return `hoy a las ${hora}`;
     if (igual(fechaSel, manana)) return `mañana a las ${hora}`;
     return `el ${fechaSel.toLocaleDateString("es-AR", { weekday: "long" })} a las ${hora}`;
+  }
+
+  // Garabatos al margen de la planilla: cambian en cada partido.
+  const DOODLE_FORM = ["4-3-3", "3-4-3", "4-4-2", "3-5-2", "5-3-2", "4-3-1-2", "2-3-1"];
+  const DOODLE_FRASE = ["dale q se puede", "no falla", "presión alta", "cero en contra", "todos atrás", "por afuera", "picar al hueco"];
+  const DOODLE_ESQUINA = ["¡vamos!", "OJO acá", "presionar", "clave 🔑", "arriba", "correr ✅"];
+  function renderDoodles() {
+    const pick = (a) => a[Math.floor(Math.random() * a.length)];
+    document.getElementById("doodleForm").textContent = pick(DOODLE_FORM);
+    document.getElementById("doodleFrase").textContent = pick(DOODLE_FRASE);
+    document.getElementById("doodleEsquina").textContent = pick(DOODLE_ESQUINA);
   }
 
   function mensajeArenga() {
@@ -663,6 +703,7 @@
     partidoCuandoMsg = cuandoParaMensaje();
     partidoLugarMsg = cancha;
     document.getElementById("minTxt").textContent = minimo;
+    renderDoodles();
     // El partido nuevo bautiza (o re-bautiza) la banda que se arme
     ultimoPartido = {
       dia: cuandoDate.toLocaleDateString("es-AR", { weekday: "long" }),
@@ -1384,6 +1425,7 @@
     partidoCuandoMsg = p.fecha.toLowerCase().replace("·", "a las").trim();
     partidoLugarMsg = p.lugar;
     document.getElementById("minTxt").textContent = p.minimo;
+    renderDoodles();
     document.getElementById("avisoBanda").style.display = "none";
 
     // Los que ya se anotaron a este partido
