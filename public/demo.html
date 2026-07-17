@@ -101,6 +101,34 @@
   .tag-org { font-size: 10px; background: rgba(45,106,79,.1); color: var(--verde-acento); padding: 1px 6px; border-radius: 4px; }
   .goal { width: 120px; display: block; margin: 0 auto; }
   .empty { border: 1px dashed rgba(0,0,0,.15); border-radius: 12px; padding: 20px; text-align: center; color: var(--muted); font-size: 13px; }
+  /* La planilla del DT: portapapeles de madera con clip metálico, sobre el
+     pasto. La info del partido va en la hoja de papel. */
+  .portapapeles {
+    position: relative;
+    margin-top: 16px;
+    padding: 26px 12px 14px;
+    border-radius: 10px;
+    background: repeating-linear-gradient(91deg, #9c6b3f 0 7px, #a9764a 7px 15px, #915f36 15px 22px);
+    box-shadow: 0 6px 18px rgba(0,0,0,.28), inset 0 0 0 1px rgba(0,0,0,.15);
+  }
+  .clip {
+    position: absolute; top: -9px; left: 50%; transform: translateX(-50%);
+    width: 76px; height: 26px; border-radius: 5px 5px 3px 3px;
+    background: linear-gradient(#fdfdfd, #c9ccd1 55%, #9aa0a6);
+    box-shadow: 0 2px 5px rgba(0,0,0,.35), inset 0 -2px 3px rgba(0,0,0,.12);
+    border: 1px solid #8a9096;
+  }
+  .clip::after {
+    content: ""; position: absolute; left: 50%; top: 7px; transform: translateX(-50%);
+    width: 40px; height: 5px; border-radius: 3px;
+    background: rgba(0,0,0,.18);
+  }
+  .papel {
+    background: #fffdf5; border-radius: 3px; padding: 16px 14px;
+    box-shadow: 0 2px 6px rgba(0,0,0,.22);
+  }
+  .papel > * + * { margin-top: 14px; }
+
   /* El nombre de la banda como un trapo de cancha: tela verde, letras
      pintadas en blanco, borde por dentro y ojales en las esquinas. */
   .trapo {
@@ -230,43 +258,35 @@
   <section id="creado" class="screen">
     <div class="stack">
       <button class="link" onclick="go('mural')">← Inicio</button>
-      <div class="center">
-        <div style="font-size:36px;" id="emoji">🎉</div>
-        <h2 id="tituloCreado">¡Convocatoria abierta!</h2>
-        <p class="sub" id="resumen"></p>
-      </div>
 
-      <div>
-        <p class="label">Link para el grupo de WhatsApp</p>
-        <div class="invite">
-          <code id="linkTxt">http://localhost:3001/p/x7k2m9</code>
-          <button onclick="copiarLink(this)">Copiar</button>
-        </div>
-        <p id="avisoBanda" style="display:none; margin:8px 0 0; background:rgba(45,106,79,.08); color:var(--verde-acento); border-radius:8px; padding:10px 12px; font-size:13px;"></p>
-      </div>
-
-      <div>
-        <p class="label">Así se ve tu mensaje</p>
-        <div class="wsp" id="wspMsg"></div>
-      </div>
-
-      <div class="card pad progress-card" id="progressCard">
-        <div class="progress-head">
-          <span class="big"><span id="cuenta">0</span>/<span id="minTxt">10</span></span>
-          <span class="tag" id="estado">Faltan 10 para que se juegue</span>
-        </div>
-        <div class="bar"><div id="barFill"></div></div>
-      </div>
-
-      <div id="lobbyWrap">
-        <div class="empty" id="lobbyEmpty">Todavía no se anotó nadie. Compartí el link en el grupo 📲</div>
-        <div style="display:none;" id="lobbyFull">
-          <p class="label" style="padding:0;">Titulares</p>
-          <div class="card" id="lobby"></div>
-          <div id="suplentesWrap" style="display:none; margin-top:14px;">
-            <p class="label" style="padding:0;">Suplentes <span style="text-transform:none; letter-spacing:0; font-weight:400; opacity:.7;">— por orden de llegada</span></p>
-            <div class="card" id="suplentes"></div>
+      <div class="portapapeles">
+        <div class="clip"></div>
+        <div class="papel">
+          <div class="progress-card" id="progressCard" style="border:0; padding:0; background:transparent;">
+            <div class="progress-head">
+              <span class="big"><span id="cuenta">0</span>/<span id="minTxt">10</span></span>
+              <span class="tag" id="estado">Faltan 10 para que se juegue</span>
+            </div>
+            <div class="bar"><div id="barFill"></div></div>
           </div>
+
+          <div id="lobbyWrap">
+            <div class="empty" id="lobbyEmpty">Todavía no se anotó nadie. Compartí el link en el grupo 📲</div>
+            <div style="display:none;" id="lobbyFull">
+              <p class="label" style="padding:0;">Titulares</p>
+              <div id="lobby"></div>
+              <div id="suplentesWrap" style="display:none; margin-top:14px;">
+                <p class="label" style="padding:0;">Suplentes <span style="text-transform:none; letter-spacing:0; font-weight:400; opacity:.7;">— por orden de llegada</span></p>
+                <div id="suplentes"></div>
+              </div>
+            </div>
+          </div>
+
+          <div class="invite">
+            <code id="linkTxt">http://localhost:3001/p/x7k2m9</code>
+            <button onclick="copiarLink(this)">Copiar</button>
+          </div>
+          <p id="avisoBanda" style="display:none; margin:8px 0 0; background:rgba(45,106,79,.08); color:var(--verde-acento); border-radius:8px; padding:10px 12px; font-size:13px;"></p>
         </div>
       </div>
 
@@ -411,6 +431,7 @@
   const etiqueta = (rol) => rol === "Donde sea" ? fraseActual : rol;
 
   let minimo = 10;
+  let resumenPartido = ""; // fecha/lugar/mínimo, para la pantalla de equipos
   let ucJuega = true;
   let ucRol = "Donde sea";
 
@@ -587,14 +608,9 @@
     cuandoDate.setHours(horaSel, minutoSel, 0, 0);
     const cuando = fmtFecha(cuandoDate);
     const cancha = document.getElementById("cancha").value.trim();
-    document.getElementById("resumen").textContent =
-      cuando + (cancha ? " · " + cancha : "") + " · mínimo " + minimo;
+    // Se guarda para la pantalla de equipos (ya no se muestra acá)
+    resumenPartido = cuando + (cancha ? " · " + cancha : "") + " · mínimo " + minimo;
     document.getElementById("minTxt").textContent = minimo;
-    document.getElementById("wspMsg").innerHTML =
-      `⚽ <strong>¡Se arma partido!</strong> ${cuando}${cancha ? " en " + cancha : ""}.<br>` +
-      `Necesitamos <strong>${minimo}</strong> para que se juegue. Anotate y elegí tu puesto 👉 ` +
-      `<span style="color:var(--verde-acento);">http://localhost:3001/p/x7k2m9</span>` +
-      `<span class="hora">21:14 ✓✓</span>`;
     // El partido nuevo bautiza (o re-bautiza) la banda que se arme
     ultimoPartido = {
       dia: cuandoDate.toLocaleDateString("es-AR", { weekday: "long" }),
@@ -660,8 +676,6 @@
       ? (suplentes.length ? `✅ ¡SE JUEGA! · ${suplentes.length} en banca` : "✅ ¡SE JUEGA!")
       : `Faltan ${minimo - enPartido} para que se juegue`;
     tag.className = completo ? "tag full" : "tag";
-    document.getElementById("emoji").textContent = completo ? "🔥" : "🎉";
-    document.getElementById("tituloCreado").textContent = completo ? "¡Partido confirmado!" : "¡Convocatoria abierta!";
 
     document.getElementById("lobbyEmpty").style.display = anotados.length === 0 ? "block" : "none";
     document.getElementById("lobbyFull").style.display = anotados.length === 0 ? "none" : "block";
@@ -1021,8 +1035,7 @@
       </div>`;
     document.getElementById("finalTeams").innerHTML =
       columna("🔵", nombresEquipos.A, A, "A") + columna("🔴", nombresEquipos.B, B, "B");
-    document.getElementById("finalResumen").textContent =
-      document.getElementById("resumen").textContent;
+    document.getElementById("finalResumen").textContent = resumenPartido;
     document.getElementById("wspEquipos").innerHTML =
       `⚽ <strong>Equipos confirmados</strong><br>` +
       `🔵 ${nombresEquipos.A}: ${A.map(a => a.n).join(", ")}<br>` +
@@ -1315,14 +1328,8 @@
   function abrirPartidoDelMuro() {
     const p = muralProximo;
     minimo = p.minimo;
-    document.getElementById("resumen").textContent =
-      `${p.fecha} · ${p.lugar} · mínimo ${p.minimo}`;
+    resumenPartido = `${p.fecha} · ${p.lugar} · mínimo ${p.minimo}`;
     document.getElementById("minTxt").textContent = p.minimo;
-    document.getElementById("wspMsg").innerHTML =
-      `⚽ <strong>¡Se arma partido!</strong> ${p.fecha} en ${p.lugar}.<br>` +
-      `Necesitamos <strong>${p.minimo}</strong> para que se juegue. Anotate y elegí tu puesto 👉 ` +
-      `<span style="color:var(--verde-acento);">http://localhost:3001/p/x7k2m9</span>` +
-      `<span class="hora">21:14 ✓✓</span>`;
     document.getElementById("avisoBanda").style.display = "none";
 
     // Los que ya se anotaron a este partido
