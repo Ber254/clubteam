@@ -1388,6 +1388,7 @@
             👥 Ver los ${p.anotados} anotados y armar equipos →
           </p>
         </div>
+        <button class="link" style="font-size:13px; margin-bottom:10px;" onclick="copiarLinkMuro(this)">📲 Copiar link para el grupo</button>
         <p class="label" style="padding:0;">🔥 Calentando la previa</p>
         <div class="card" id="muralPrevia" style="margin-bottom:8px;"></div>
         <div style="display:flex; gap:8px;">
@@ -1415,6 +1416,15 @@
         <p class="sub" style="margin:8px 0 0; font-size:12px;">💬 ${m.coment} comentarios · lo que pasó en la cancha, quedó ahí</p>
       </div>`;
     }).join("");
+  }
+
+  function copiarLinkMuro(btn) {
+    const p = muralProximo;
+    const arenga = ARENGAS[Math.floor(Math.random() * ARENGAS.length)];
+    const txt = `${arenga}\nJugamos ${p.fecha.toLowerCase()} en ${p.lugar}.\nAnotate y elegí tu puesto 👉 http://localhost:3001/p/x7k2m9`;
+    (navigator.clipboard ? navigator.clipboard.writeText(txt) : Promise.reject())
+      .then(() => { btn.textContent = "¡Copiado!"; setTimeout(() => btn.textContent = "📲 Copiar link para el grupo", 1600); })
+      .catch(() => {});
   }
 
   function comentarPrevia() {
