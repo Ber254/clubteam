@@ -348,26 +348,42 @@
   <section id="armador" class="screen">
     <div class="stack">
       <button class="link" onclick="go('creado')">← Volver a la convocatoria</button>
-      <div>
-        <h2>Armar equipos</h2>
-        <p class="sub">Tocá <strong>A</strong> o <strong>B</strong> para asignar a cada jugador. <span class="estado-armador" id="armadorEstado"></span></p>
-      </div>
+      <div class="portapapeles">
+        <div class="clip"></div>
+        <div class="papel">
+          <div>
+            <h2>Armar equipos</h2>
+            <p class="sub">Tocá <strong>A</strong> o <strong>B</strong> para asignar a cada jugador. <span class="estado-armador" id="armadorEstado"></span></p>
+          </div>
 
-      <button class="btn btn-outline" onclick="sortearNombres()" style="font-size:13px; padding:9px;">🎲 Sortear otros nombres</button>
+          <button class="btn btn-outline" onclick="sortearNombres()" style="font-size:13px; padding:9px;">🎲 Sortear otros nombres</button>
 
-      <div class="teams">
-        <div class="card pad" id="colA"></div>
-        <div class="card pad" id="colB"></div>
-      </div>
+          <div class="teams">
+            <div class="card pad" id="colA"></div>
+            <div class="card pad" id="colB"></div>
+          </div>
 
-      <div id="poolWrap">
-        <p class="label">Sin equipo (<span id="poolCount">0</span>)</p>
-        <div class="card" id="pool"></div>
-      </div>
+          <div id="poolWrap">
+            <p class="label">Sin equipo (<span id="poolCount">0</span>)</p>
+            <div class="card" id="pool"></div>
+          </div>
 
-      <div id="suplentesArmadorWrap" style="display:none;">
-        <p class="label">Suplentes (<span id="suplentesCount">0</span>) <span style="text-transform:none; letter-spacing:0; font-weight:400; opacity:.7;">— metelos a un equipo si querés</span></p>
-        <div class="card" id="suplentesArmador"></div>
+          <div id="suplentesArmadorWrap" style="display:none;">
+            <p class="label">Suplentes (<span id="suplentesCount">0</span>) <span style="text-transform:none; letter-spacing:0; font-weight:400; opacity:.7;">— metelos a un equipo si querés</span></p>
+            <div class="card" id="suplentesArmador"></div>
+          </div>
+
+          <div class="doodles" aria-hidden="true">
+            <span class="doodle" style="font-size:24px; transform:rotate(-4deg);">dupla 🔒</span>
+            <svg width="54" height="40" viewBox="0 0 54 40" fill="none" stroke="#6f6f6f" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" style="transform:rotate(2deg);">
+              <circle cx="27" cy="20" r="7"/>
+              <path d="M27 13 L27 20 L33 24 M27 20 L21 24"/>
+              <path d="M6 34 C 18 24, 36 24, 48 34" stroke-dasharray="3 3"/>
+            </svg>
+            <span class="doodle" style="font-size:18px; transform:rotate(3deg);">que se mueva</span>
+          </div>
+        </div>
+        <span class="doodle-esquina">clave 🔑</span>
       </div>
 
       <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px;">
