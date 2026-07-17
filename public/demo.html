@@ -400,13 +400,12 @@
       <div class="portapapeles">
         <div class="clip"></div>
         <div class="papel">
-          <div class="center">
-            <div style="font-size:36px;">🏆</div>
-            <h2>¡Equipos listos!</h2>
-            <p class="sub" id="finalResumen"></p>
-          </div>
-
           <div class="teams" id="finalTeams"></div>
+
+          <div id="finalSuplentesWrap" style="display:none;">
+            <p class="label" style="padding:0;">Suplentes</p>
+            <div class="card" id="finalSuplentes"></div>
+          </div>
 
           <div>
             <p class="label">Mensaje para el grupo</p>
@@ -1168,7 +1167,10 @@
       </div>`;
     document.getElementById("finalTeams").innerHTML =
       columna("🔵", nombresEquipos.A, A, "A") + columna("🔴", nombresEquipos.B, B, "B");
-    document.getElementById("finalResumen").textContent = resumenPartido;
+    const suplentes = anotados.filter(a => !a.titular);
+    document.getElementById("finalSuplentesWrap").style.display = suplentes.length ? "block" : "none";
+    document.getElementById("finalSuplentes").innerHTML = suplentes.map(a =>
+      `<div class="anot" style="padding:6px 14px;">${rolIco(a.rol)} ${a.n}</div>`).join("");
     document.getElementById("wspEquipos").innerHTML =
       `⚽ <strong>Equipos confirmados</strong><br>` +
       `🔵 ${nombresEquipos.A}: ${A.map(a => a.n).join(", ")}<br>` +
