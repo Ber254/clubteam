@@ -101,6 +101,24 @@
   .tag-org { font-size: 10px; background: rgba(45,106,79,.1); color: var(--verde-acento); padding: 1px 6px; border-radius: 4px; }
   .goal { width: 120px; display: block; margin: 0 auto; }
   .empty { border: 1px dashed rgba(0,0,0,.15); border-radius: 12px; padding: 20px; text-align: center; color: var(--muted); font-size: 13px; }
+  /* El nombre de la banda como un trapo de cancha: tela verde, letras
+     pintadas en blanco, borde por dentro y ojales en las esquinas. */
+  .trapo {
+    position: relative; display: inline-block; cursor: pointer;
+    max-width: 100%; margin: 6px 0 2px;
+    padding: 18px 34px;
+    background: var(--verde-acento); color: #fff;
+    font-weight: 800; font-size: 19px; line-height: 1.25;
+    letter-spacing: .07em; text-transform: uppercase; text-align: center;
+    transform: rotate(-1.2deg);
+    box-shadow: inset 0 0 0 2px rgba(255,255,255,.5), 0 5px 16px rgba(0,0,0,.18);
+    transition: transform .15s ease;
+  }
+  .trapo:hover { transform: rotate(-1.2deg) scale(1.03); }
+  .ojal {
+    position: absolute; width: 8px; height: 8px; border-radius: 50%;
+    background: #f2f2f2; box-shadow: inset 0 0 0 1.5px rgba(0,0,0,.35);
+  }
   .teams { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
   .estado-armador { font-weight: 600; color: var(--verde-acento); }
   .score { display: flex; align-items: center; justify-content: center; gap: 18px; }
@@ -1211,10 +1229,13 @@
                    border-radius:8px; font-size:17px; font-weight:700; text-align:center; outline:none;" />
           <button class="mini up" style="margin-left:0;" onmousedown="event.preventDefault()" onclick="guardarNombreBanda()" title="Guardar">✓</button>
         </div>`
-      : `<h2 onclick="renombrarBanda()" title="Tocá el nombre para cambiarlo"
-            style="cursor:pointer; display:inline-block; padding:2px 8px; border-radius:8px;"
-            onmouseover="this.style.background='rgba(45,106,79,.08)'"
-            onmouseout="this.style.background='transparent'">${nombreDelMuro()}</h2>`;
+      : `<div class="trapo" onclick="renombrarBanda()" title="Tocá el trapo para cambiarle el nombre">
+          <i class="ojal" style="top:7px; left:9px;"></i>
+          <i class="ojal" style="top:7px; right:9px;"></i>
+          <i class="ojal" style="bottom:7px; left:9px;"></i>
+          <i class="ojal" style="bottom:7px; right:9px;"></i>
+          ${nombreDelMuro()}
+        </div>`;
   }
   function renombrarBanda() {
     editandoBanda = true;
