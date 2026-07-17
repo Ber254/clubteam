@@ -351,12 +351,9 @@
       <div class="portapapeles">
         <div class="clip"></div>
         <div class="papel">
-          <div>
-            <h2>Armar equipos</h2>
-            <p class="sub">Tocá <strong>A</strong> o <strong>B</strong> para asignar a cada jugador. <span class="estado-armador" id="armadorEstado"></span></p>
-          </div>
+          <h2 style="margin-bottom:12px;">Armar equipos <span class="estado-armador" id="armadorEstado" style="font-size:13px; font-weight:400;"></span></h2>
 
-          <button class="btn btn-outline" onclick="sortearNombres()" style="font-size:13px; padding:9px;">🎲 Sortear otros nombres</button>
+          <button class="btn btn-primary" onclick="sugerirEquipos()">⚖ Armado automático</button>
 
           <div class="teams">
             <div class="card pad" id="colA"></div>
@@ -387,7 +384,7 @@
       </div>
 
       <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px;">
-        <button class="btn btn-outline" onclick="sugerirEquipos()">⚖ Sugerir</button>
+        <button class="btn btn-outline" onclick="sugerirEquipos()">⚖ Armado automático</button>
         <button class="btn btn-outline" onclick="limpiarEquipos()">🧹 Limpiar</button>
       </div>
 
@@ -967,8 +964,8 @@
             <button class="mini up" style="margin-left:0;" onmousedown="event.preventDefault()" onclick="guardarNombre('${eq}')" title="Guardar">✓</button>
           </div>`
         : `<p class="group-title" style="padding:0; display:flex; align-items:center; gap:4px;">
-            <span style="min-width:0; overflow:hidden; text-overflow:ellipsis;">${nombresEquipos[eq]} (${arr.length})</span>
-            <button class="mini" style="margin-left:auto;" onclick="renombrarEquipo('${eq}')" title="Cambiar nombre">✏️</button>
+            <span onclick="renombrarEquipo('${eq}')" title="Tocá el nombre para editarlo" style="cursor:pointer; min-width:0; overflow:hidden; text-overflow:ellipsis;">${nombresEquipos[eq]} (${arr.length})</span>
+            <button class="mini" style="margin-left:auto;" onclick="sortearNombres()" title="Nombre al azar">✏️</button>
           </p>`;
     const columna = (eq, arr) =>
       header(eq, arr) +
