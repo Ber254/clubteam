@@ -1027,8 +1027,8 @@
         <p class="group-title">${r.ico} ${etiqueta(r.n)} (${gente.length})</p>
         ${gente.map(a => `<div class="anot">${a.n}
           <span style="margin-left:auto; display:flex; gap:6px;">
-            <button class="mini up" style="margin-left:0;" onclick="asignar(${a.id}, 'A')">A</button>
-            <button class="mini up" style="margin-left:0;" onclick="asignar(${a.id}, 'B')">B</button>
+            <button class="mini up" style="margin-left:0; max-width:96px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;" onclick="asignar(${a.id}, 'A')">${nombresEquipos.A}</button>
+            <button class="mini up" style="margin-left:0; max-width:96px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;" onclick="asignar(${a.id}, 'B')">${nombresEquipos.B}</button>
             <button class="mini" style="margin-left:0;" onclick="aBanca(${a.id})" title="Mandar a la banca">🪑</button>
           </span>
         </div>`).join("")}
@@ -1044,8 +1044,8 @@
         <span class="num" style="color:var(--muted); font-weight:400; font-size:12px; min-width:20px;">${i + 1}.</span>
         ${rolIco(a.rol)} ${a.n}
         <span style="margin-left:auto; display:flex; gap:6px;">
-          <button class="mini up" style="margin-left:0;" onclick="asignar(${a.id}, 'A')">A</button>
-          <button class="mini up" style="margin-left:0;" onclick="asignar(${a.id}, 'B')">B</button>
+          <button class="mini up" style="margin-left:0; max-width:96px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;" onclick="asignar(${a.id}, 'A')">${nombresEquipos.A}</button>
+          <button class="mini up" style="margin-left:0; max-width:96px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;" onclick="asignar(${a.id}, 'B')">${nombresEquipos.B}</button>
         </span>
       </div>`).join("");
 
