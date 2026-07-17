@@ -396,19 +396,34 @@
   <section id="equiposFinal" class="screen">
     <div class="stack">
       <button class="link" onclick="go('armador')">← Editar equipos</button>
-      <div class="center">
-        <div style="font-size:36px;">🏆</div>
-        <h2>¡Equipos listos!</h2>
-        <p class="sub" id="finalResumen"></p>
-      </div>
 
-      <div class="teams" id="finalTeams"></div>
-      <p class="sub center">Los nombres quedan guardados para el próximo partido de la banda. Pronto: cada capitán va a poder cambiar el suyo.</p>
+      <div class="portapapeles">
+        <div class="clip"></div>
+        <div class="papel">
+          <div class="center">
+            <div style="font-size:36px;">🏆</div>
+            <h2>¡Equipos listos!</h2>
+            <p class="sub" id="finalResumen"></p>
+          </div>
 
-      <div>
-        <p class="label">Mensaje para el grupo</p>
-        <div class="wsp" id="wspEquipos"></div>
-        <button class="btn btn-primary" style="margin-top:10px;" onclick="copiarEquipos(this)">Copiar mensaje</button>
+          <div class="teams" id="finalTeams"></div>
+
+          <div>
+            <p class="label">Mensaje para el grupo</p>
+            <div class="wsp" id="wspEquipos"></div>
+            <button class="btn btn-primary" style="margin-top:10px;" onclick="copiarEquipos(this)">Copiar mensaje</button>
+          </div>
+
+          <div class="doodles" aria-hidden="true">
+            <span class="doodle" style="font-size:24px; transform:rotate(-3deg);">a ganar 🏆</span>
+            <svg width="52" height="40" viewBox="0 0 52 40" fill="none" stroke="#6f6f6f" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" style="transform:rotate(-2deg);">
+              <path d="M8 32 L8 10 L18 18 L8 10 M44 32 L44 10 L34 18 L44 10"/>
+              <circle cx="26" cy="22" r="5"/>
+            </svg>
+            <span class="doodle" style="font-size:18px; transform:rotate(3deg);">sin roscas</span>
+          </div>
+        </div>
+        <span class="doodle-esquina">¡vamos!</span>
       </div>
 
       <button class="btn btn-outline" onclick="abrirPost()">🏁 Ya se jugó · Cargar resultado</button>
