@@ -433,14 +433,26 @@
   <section id="postpartido" class="screen">
     <div class="stack">
       <button class="link" onclick="go('equiposFinal')">← Volver</button>
-      <div>
-        <h2>¿Cómo salió?</h2>
-        <p class="sub">Sumá los goles de cada uno y el marcador se arma solo. Lo puede cargar cualquiera que jugó.</p>
+
+      <div class="portapapeles">
+        <div class="clip"></div>
+        <div class="papel">
+          <h2 style="margin-bottom:2px;">¿Cómo salió?</h2>
+          <div id="marcador"></div>
+          <div id="postEquipos" class="teams"></div>
+
+          <div class="doodles" aria-hidden="true">
+            <span class="doodle" style="font-size:24px; transform:rotate(-4deg);">golazo ⚽</span>
+            <svg width="52" height="40" viewBox="0 0 52 40" fill="none" stroke="#6f6f6f" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" style="transform:rotate(2deg);">
+              <path d="M6 10 L6 34 L20 34 M6 22 L16 22"/>
+              <path d="M30 30 C 34 14, 44 14, 46 8"/>
+              <path d="M46 8 l-6 1 m6 -1 l0 6"/>
+            </svg>
+            <span class="doodle" style="font-size:18px; transform:rotate(3deg);">¡épico!</span>
+          </div>
+        </div>
+        <span class="doodle-esquina">acta 📝</span>
       </div>
-
-      <div class="card pad" id="marcador"></div>
-
-      <div id="postEquipos"></div>
 
       <button class="btn btn-primary" onclick="guardarResultado()">Guardar resultado</button>
     </div>
@@ -1255,6 +1267,13 @@
     golesOtros[eq] = Math.max(0, golesOtros[eq] + d);
     renderPost();
   }
+  // Editar el marcador a mano: lo que exceda a los goles con autor va a "sin autor"
+  function setMarcador(eq, val) {
+    const v = Math.max(0, Math.floor(+val || 0));
+    const base = anotados.filter(a => a.equipo === eq).reduce((s, a) => s + a.goles, 0);
+    golesOtros[eq] = Math.max(0, v - base);
+    renderPost();
+  }
   function toggleLesion(id) {
     const a = anotados.find(x => x.id === id);
     if (a) { a.lesionado = !a.lesionado; renderPost(); }
@@ -1275,11 +1294,13 @@
       : gA > gB
         ? `🏆 Ganó ${nombresEquipos.A} ${gA} - ${gB}`
         : `🏆 Ganó ${nombresEquipos.B} ${gB} - ${gA}`;
+    const inMarc = (eq, g) => `<input type="number" min="0" value="${g}" onchange="setMarcador('${eq}', this.value)"
+      style="width:60px; height:48px; font-size:30px; font-weight:700; text-align:center; color:var(--texto); border:1px solid rgba(0,0,0,.15); border-radius:8px; background:#fff; outline:none;" title="Editá el marcador a mano">`;
     document.getElementById("marcador").innerHTML =
       `<div class="score">
-        <div><div class="n">${gA}</div><div class="t">${nombresEquipos.A}</div></div>
+        <div>${inMarc("A", gA)}<div class="t">${nombresEquipos.A}</div></div>
         <div style="font-size:22px; color:#b0b0b0;">-</div>
-        <div><div class="n">${gB}</div><div class="t">${nombresEquipos.B}</div></div>
+        <div>${inMarc("B", gB)}<div class="t">${nombresEquipos.B}</div></div>
       </div>
       <p class="center" style="margin:10px 0 0; font-weight:600; color:var(--verde-acento);">${veredicto}</p>`;
 
