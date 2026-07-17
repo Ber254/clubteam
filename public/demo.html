@@ -951,8 +951,9 @@
 
     if (!nombresEquipos) nombresEquipos = parAleatorio();
     const filaEquipo = (a) =>
-      `<div class="anot" style="padding:6px 0;">${rolIco(a.rol)} ${a.n}
-        <span style="margin-left:auto; display:flex; gap:6px;">
+      `<div class="anot" style="padding:6px 0;">
+        <span style="flex:1; min-width:0; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">${rolIco(a.rol)} ${a.n}</span>
+        <span style="flex-shrink:0; display:flex; gap:6px;">
           <button class="mini" style="margin-left:0;" onclick="aBanca(${a.id})" title="Mandar a la banca">🪑</button>
           <button class="mini" style="margin-left:0;" onclick="asignar(${a.id}, null)" title="Sacar del equipo">✕</button>
         </span>
