@@ -191,6 +191,14 @@
   }
   input[type=number] { -moz-appearance: textfield; }
   input[type=number]::-webkit-outer-spin-button, input[type=number]::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
+  #toast {
+    position: fixed; left: 50%; bottom: 24px; transform: translate(-50%, 20px);
+    max-width: 88%; background: var(--texto); color: #fff; padding: 13px 18px;
+    border-radius: 12px; font-size: 14px; font-weight: 500; text-align: center;
+    box-shadow: 0 8px 24px rgba(0,0,0,.3); opacity: 0; pointer-events: none;
+    transition: opacity .25s ease, transform .25s ease; z-index: 999;
+  }
+  #toast.show { opacity: 1; transform: translate(-50%, 0); }
   .teams { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
   .estado-armador { font-weight: 600; color: var(--verde-acento); }
   .score { display: flex; align-items: center; justify-content: center; gap: 18px; }
@@ -200,6 +208,7 @@
 </head>
 <body>
 <div class="banner">DEMO · flujo creación de partido (UC) · datos de ejemplo</div>
+<div id="toast"></div>
 <div class="app">
 
   <!-- MURAL: la HOME. Cada partido es un evento: lo que viene y lo que fue. -->
@@ -1479,7 +1488,10 @@
             👥 Ver los ${p.anotados} anotados y armar equipos →
           </p>
         </div>
-        <button class="link" style="font-size:13px; margin-bottom:10px;" onclick="copiarLinkMuro(this)">📲 Copiar link para el grupo</button>
+        <div style="display:flex; gap:8px; margin-bottom:10px;">
+          <button class="btn btn-primary" style="flex:1; min-height:42px; padding:8px 10px; font-size:13px; line-height:1.2;" onclick="copiarLinkMuro()">📲 Invitá más gente al picadito !!!!</button>
+          <button class="btn btn-outline" style="min-height:42px; padding:8px 12px; font-size:13px; white-space:nowrap;" onclick="abrirPartidoDelMuro()">Ver partido →</button>
+        </div>
         <p class="label" style="padding:0;">🔥 Calentando la previa</p>
         <div class="card" id="muralPrevia" style="margin-bottom:8px;"></div>
         <div style="display:flex; gap:8px;">
@@ -1510,13 +1522,20 @@
     }).join("");
   }
 
-  function copiarLinkMuro(btn) {
+  function copiarLinkMuro() {
     const p = muralProximo;
     const arenga = ARENGAS[Math.floor(Math.random() * ARENGAS.length)];
     const txt = `${arenga}\nJugamos ${p.fecha.toLowerCase()} en ${p.lugar}.\nAnotate y elegí tu puesto 👉 http://localhost:3001/p/x7k2m9`;
-    (navigator.clipboard ? navigator.clipboard.writeText(txt) : Promise.reject())
-      .then(() => { btn.textContent = "¡Copiado!"; setTimeout(() => btn.textContent = "📲 Copiar link para el grupo", 1600); })
-      .catch(() => {});
+    if (navigator.clipboard) navigator.clipboard.writeText(txt).catch(() => {});
+    mostrarToast("✅ Invitación copiada, ahora pegala en tu grupo de WhatsApp");
+  }
+  let toastTimer;
+  function mostrarToast(msg) {
+    const t = document.getElementById("toast");
+    t.textContent = msg;
+    t.classList.add("show");
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(() => t.classList.remove("show"), 3000);
   }
 
   function comentarPrevia() {
