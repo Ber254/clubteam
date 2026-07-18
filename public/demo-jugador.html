@@ -13,7 +13,15 @@
     --texto: #1b1b1b;
     --muted: #5f6b63;
   }
-  * { box-sizing: border-box; }
+  * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+  html { -webkit-text-size-adjust: 100%; }
+  /* Perfil mobile (Apple HIG): áreas táctiles cómodas, sin delay ni zoom */
+  button, .btn, .role, a { touch-action: manipulation; }
+  button, .btn, a { user-select: none; }
+  .btn { min-height: 48px; }
+  .mini { min-height: 36px; min-width: 36px; display: inline-flex; align-items: center; justify-content: center; }
+  input, select, textarea { font-size: 16px; }
+  body { -webkit-overflow-scrolling: touch; }
   body {
     margin: 0; color: var(--texto);
     font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
