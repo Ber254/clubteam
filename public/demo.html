@@ -229,6 +229,26 @@
     </div>
   </section>
 
+  <!-- PARTIDO PASADO: cómo se armó, resultado y comentarios -->
+  <section id="partidoPasado" class="screen">
+    <div class="stack">
+      <button class="link" onclick="go('mural')">← Volver al muro</button>
+      <div class="portapapeles">
+        <div class="clip"></div>
+        <div class="papel">
+          <h2 id="ppTitulo" style="margin-bottom:2px;"></h2>
+          <div id="ppMarcador"></div>
+          <div id="ppEquipos" class="teams"></div>
+          <div>
+            <p class="label" style="padding:0;">💬 Comentarios de la previa</p>
+            <div class="card" id="ppComentarios"></div>
+          </div>
+        </div>
+        <span class="doodle-esquina">crack ⭐</span>
+      </div>
+    </div>
+  </section>
+
   <!-- CREAR PARTIDO -->
   <section id="crear" class="screen">
     <div class="stack">
@@ -1415,9 +1435,18 @@
     ],
   };
   const muralPasados = [
-    { fecha: "mié 8 jul", res: "Ganamos 4-2", figura: "⚽ Seba (2)", anecdota: "El Colo atajó un penal con la cara 😂", coment: 7 },
-    { fecha: "mié 1 jul", res: "Empatamos 3-3", figura: "⚽ Dani (2)", anecdota: "Se cortó la luz y terminamos con la linterna del celu 📱", coment: 12 },
-    { fecha: "mié 24 jun", res: "Perdimos 1-5", figura: "⚽ Fer (el del honor)", anecdota: "Mejor no hablar de esa noche 🙈", coment: 4 },
+    { fecha: "mié 8 jul", res: "Ganamos 4-2", figura: "⚽ Seba (2)", anecdota: "El Colo atajó un penal con la cara 😂", coment: 7,
+      nombres: { A: "Con pechera", B: "Sin pechera" }, marcador: { A: 4, B: 2 },
+      equipos: { A: ["Nacho", "Seba", "Colo", "Tincho", "Fer"], B: ["Dani", "Rulo", "Chino", "Lea", "Pipa"] },
+      comentarios: [{ n: "Nacho", t: "Hoy los pasamos por arriba 💪", org: true }, { n: "Colo", t: "atajo todo, tranqui" }] },
+    { fecha: "mié 1 jul", res: "Empatamos 3-3", figura: "⚽ Dani (2)", anecdota: "Se cortó la luz y terminamos con la linterna del celu 📱", coment: 12,
+      nombres: { A: "Claros", B: "Oscuros" }, marcador: { A: 3, B: 3 },
+      equipos: { A: ["Nacho", "Dani", "Fer", "Chino", "Toto"], B: ["Seba", "Rulo", "Lea", "Pipa", "Mati"] },
+      comentarios: [{ n: "Seba", t: "traigan linterna por las dudas 🔦" }, { n: "Dani", t: "yo hago los goles" }] },
+    { fecha: "mié 24 jun", res: "Perdimos 1-5", figura: "⚽ Fer (el del honor)", anecdota: "Mejor no hablar de esa noche 🙈", coment: 4,
+      nombres: { A: "Gordos", B: "Pelados" }, marcador: { A: 1, B: 5 },
+      equipos: { A: ["Nacho", "Fer", "Tincho", "Pipa", "Lea"], B: ["Seba", "Dani", "Rulo", "Chino", "Mati"] },
+      comentarios: [{ n: "Nacho", t: "prometo que la próxima ganamos", org: true }] },
   ];
 
   // El nombre de la banda lo puede cambiar CUALQUIERA del grupo (no solo el
@@ -1509,10 +1538,11 @@
         </span>
       </div>`).join("");
 
-    document.getElementById("muralPasados").innerHTML = muralPasados.map(m => {
+    document.getElementById("muralPasados").innerHTML = muralPasados.map((m, i) => {
       const gano = m.res.startsWith("Ganamos"), perdio = m.res.startsWith("Perdimos");
       const color = gano ? "var(--verde-acento)" : perdio ? "#a33" : "#8a7a2a";
-      return `<div class="card pad">
+      return `<div class="card pad" onclick="verPartidoPasado(${i})" style="cursor:pointer;"
+        onmouseover="this.style.background='#f6f6f6'" onmouseout="this.style.background='#fff'">
         <div class="match" style="margin-bottom:6px;">
           <span><span class="big" style="color:${color};">${m.res}</span><br><span class="meta">${m.fecha} · ${m.figura}</span></span>
         </div>
@@ -1520,6 +1550,18 @@
         <p class="sub" style="margin:8px 0 0; font-size:12px;">💬 ${m.coment} comentarios · lo que pasó en la cancha, quedó ahí</p>
       </div>`;
     }).join("");
+  }
+
+  function verPartidoPasado(i) {
+    const m = muralPasados[i];
+    const col = (eq) => `<div class="card pad"><p class="group-title" style="padding:0;">${eq === "A" ? "🔵" : "🔴"} ${m.nombres[eq]} (${m.equipos[eq].length})</p>${m.equipos[eq].map(n => `<div class="anot" style="padding:5px 0;">${n}</div>`).join("")}</div>`;
+    document.getElementById("ppTitulo").textContent = `${m.fecha} · ${m.figura}`;
+    document.getElementById("ppMarcador").innerHTML =
+      `<div class="score"><div><div class="n">${m.marcador.A}</div><div class="t">${m.nombres.A}</div></div><div style="font-size:22px; color:#b0b0b0;">-</div><div><div class="n">${m.marcador.B}</div><div class="t">${m.nombres.B}</div></div></div>`;
+    document.getElementById("ppEquipos").innerHTML = col("A") + col("B");
+    document.getElementById("ppComentarios").innerHTML = m.comentarios.map(c =>
+      `<div class="anot" style="align-items:flex-start;"><span style="font-size:13px; line-height:1.45;"><strong>${c.n}</strong>${c.org ? ' <span class="tag-org">organizador</span>' : ""}<br>${c.t}</span></div>`).join("");
+    go("partidoPasado");
   }
 
   function copiarLinkMuro() {
