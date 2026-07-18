@@ -180,6 +180,8 @@
     box-shadow: inset 0 0 22px rgba(0,0,0,.14), inset 0 0 0 2px rgba(0,0,0,.25);
     background-image: repeating-linear-gradient(0deg, rgba(0,0,0,.025) 0 1px, transparent 1px 3px);
   }
+  input[type=number] { -moz-appearance: textfield; }
+  input[type=number]::-webkit-outer-spin-button, input[type=number]::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
   .teams { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
   .estado-armador { font-weight: 600; color: var(--verde-acento); }
   .score { display: flex; align-items: center; justify-content: center; gap: 18px; }
@@ -1284,6 +1286,7 @@
     renderPost();
   }
   // Editar el marcador a mano: lo que exceda a los goles con autor va a "sin autor"
+  function setMarcadorDelta(eq, d) { setMarcador(eq, golesEquipo(eq) + d); }
   function setMarcador(eq, val) {
     const v = Math.max(0, Math.floor(+val || 0));
     const base = anotados.filter(a => a.equipo === eq).reduce((s, a) => s + a.goles, 0);
@@ -1310,8 +1313,12 @@
       : gA > gB
         ? `🏆 Ganó ${nombresEquipos.A} ${gA} - ${gB}`
         : `🏆 Ganó ${nombresEquipos.B} ${gB} - ${gA}`;
-    const inMarc = (eq, g) => `<input type="number" min="0" value="${g}" onchange="setMarcador('${eq}', this.value)"
-      style="width:60px; height:48px; font-size:30px; font-weight:700; text-align:center; color:var(--texto); border:1px solid rgba(0,0,0,.15); border-radius:8px; background:#fff; outline:none;" title="Editá el marcador a mano">`;
+    const inMarc = (eq, g) => `<div style="display:flex; flex-direction:column; align-items:center; gap:3px;">
+        <button class="mini" style="margin-left:0; width:60px;" onclick="setMarcadorDelta('${eq}',1)" aria-label="Subir">▲</button>
+        <input type="number" min="0" value="${g}" onchange="setMarcador('${eq}', this.value)"
+          style="width:60px; height:48px; font-size:30px; font-weight:700; text-align:center; color:var(--texto); border:1px solid rgba(0,0,0,.15); border-radius:8px; background:#fff; outline:none;" title="Editá el marcador a mano">
+        <button class="mini" style="margin-left:0; width:60px;" onclick="setMarcadorDelta('${eq}',-1)" aria-label="Bajar">▼</button>
+      </div>`;
     document.getElementById("marcador").innerHTML =
       `<div class="score">
         <div>${inMarc("A", gA)}<div class="t">${nombresEquipos.A}</div></div>
