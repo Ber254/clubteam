@@ -1581,7 +1581,7 @@
   function copiarLinkMuro() {
     const p = muralProximo;
     const arenga = ARENGAS[Math.floor(Math.random() * ARENGAS.length)];
-    const txt = `${arenga}\nJugamos ${p.fecha.toLowerCase()} en ${p.lugar}.\nAnotate y elegí tu puesto 👉 http://localhost:3001/p/x7k2m9`;
+    const txt = `${arenga}\nJugamos ${p.fecha.toLowerCase()} en ${p.lugar}.\nAnotate y elegí tu puesto 👉 ${LINK_INV}`;
     if (navigator.clipboard) navigator.clipboard.writeText(txt).catch(() => {});
     mostrarToast("✅ Invitación copiada, ahora pegala en tu grupo de WhatsApp");
   }
@@ -1622,6 +1622,10 @@
     actualizar();
     go("creado");
   }
+
+  // El link de invitación usa el dominio real (localhost en local, tu URL online)
+  const LINK_INV = location.origin + "/p/x7k2m9";
+  document.getElementById("linkTxt").textContent = LINK_INV;
 
   renderMiRol();
   renderFecha();
