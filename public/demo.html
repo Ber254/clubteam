@@ -220,7 +220,7 @@
 
       <div style="display:grid; grid-template-columns:3fr 1fr; gap:8px;">
         <button class="btn btn-primary" onclick="go('crear')">+ Armar otro partido</button>
-        <button class="btn btn-outline" style="padding:8px; font-size:13px; line-height:1.2;" onclick="crearGrupoNuevo()">➕ Creá un grupo</button>
+        <button class="btn btn-outline" style="padding:8px; font-size:13px; line-height:1.2;" onclick="crearGrupoNuevo()">➕ Crear otro Club</button>
       </div>
 
       <div>
@@ -1565,12 +1565,8 @@
   // Nuevo grupo: otra banda, con su propio mural e historial (los del laburo
   // aparte de los de la facu). Arranca creando su primer partido.
   function crearGrupoNuevo() {
-    banda = null;
-    nombreMuroDemo = "Tu nuevo grupo";
-    nombreMuroEditadoAMano = false;
-    mostrarToast("➕ Nuevo grupo: armá su primer partido y quien entre queda en él");
-    go("crear");
-    setConvocatoria("nueva");
+    // Tope de seguridad: 1 club por semana. (Demo: el club actual ya cuenta.)
+    mostrarToast("⏳ Solo podés crear 1 Club por semana. Probá de nuevo más adelante.");
   }
 
   function copiarInvitacion() {
