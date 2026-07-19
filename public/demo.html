@@ -335,13 +335,10 @@
       <div class="portapapeles">
         <div class="clip"></div>
         <div class="papel">
-          <div style="background:rgba(45,106,79,.09); border:2px solid var(--verde-acento); border-radius:12px; padding:12px; margin-bottom:4px;">
-            <p style="margin:0 0 3px; font-weight:700; color:var(--verde-acento);">📣 Invitación al partido</p>
-            <p class="label" style="padding:0; margin-bottom:8px;">Copiá este link y pegalo en el grupo</p>
-            <div class="invite">
-              <code id="linkTxt">http://localhost:3001/p/x7k2m9</code>
-              <button onclick="copiarLink(this)">Copiar</button>
-            </div>
+          <button class="btn btn-primary" onclick="copiarInvitacion()">📲 Invitá más gente !!</button>
+
+          <div id="plantelListo" class="btn-armar" style="display:none; cursor:pointer; margin-top:4px; background:var(--verde-acento); color:#fff; border-radius:12px; padding:16px; text-align:center; font-weight:700; font-size:17px; box-shadow:0 4px 14px rgba(45,106,79,.4);" onclick="abrirArmador()">
+            🎉 Plantel listo, a organizar los equipos
           </div>
 
           <div class="progress-card" id="progressCard" style="border:0; padding:0; background:transparent;">
@@ -351,8 +348,6 @@
             </div>
             <div class="bar"><div id="barFill"></div></div>
           </div>
-
-          <button class="btn btn-primary btn-armar" style="display:none;" onclick="abrirArmador()">Armar equipos</button>
 
           <div id="lobbyWrap">
             <div class="empty" id="lobbyEmpty">Todavía no se anotó nadie. Compartí el link en el grupo 📲</div>
@@ -370,7 +365,7 @@
           <div>
             <p class="label" style="padding:0;">📲 ¿Falta gente? Reenviá el link al grupo</p>
             <div class="invite">
-              <code>http://localhost:3001/p/x7k2m9</code>
+              <code id="linkTxt">http://localhost:3001/p/x7k2m9</code>
               <button onclick="copiarLink(this)">Copiar</button>
             </div>
           </div>
@@ -1562,6 +1557,11 @@
     document.getElementById("ppComentarios").innerHTML = m.comentarios.map(c =>
       `<div class="anot" style="align-items:flex-start;"><span style="font-size:13px; line-height:1.45;"><strong>${c.n}</strong>${c.org ? ' <span class="tag-org">organizador</span>' : ""}<br>${c.t}</span></div>`).join("");
     go("partidoPasado");
+  }
+
+  function copiarInvitacion() {
+    if (navigator.clipboard) navigator.clipboard.writeText(mensajeArenga()).catch(() => {});
+    mostrarToast("✅ Invitación copiada, ahora pegala en tu grupo de WhatsApp");
   }
 
   function copiarLinkMuro() {
