@@ -218,7 +218,10 @@
 
       <div id="muralProximo"></div>
 
-      <button class="btn btn-primary" onclick="go('crear')">+ Armar otro partido</button>
+      <div style="display:grid; grid-template-columns:3fr 1fr; gap:8px;">
+        <button class="btn btn-primary" onclick="go('crear')">+ Armar otro partido</button>
+        <button class="btn btn-outline" style="padding:8px; font-size:13px; line-height:1.2;" onclick="crearGrupoNuevo()">➕ Creá un grupo</button>
+      </div>
 
       <div>
         <p class="label">🏆 Ya jugados</p>
@@ -1557,6 +1560,17 @@
     document.getElementById("ppComentarios").innerHTML = m.comentarios.map(c =>
       `<div class="anot" style="align-items:flex-start;"><span style="font-size:13px; line-height:1.45;"><strong>${c.n}</strong>${c.org ? ' <span class="tag-org">organizador</span>' : ""}<br>${c.t}</span></div>`).join("");
     go("partidoPasado");
+  }
+
+  // Nuevo grupo: otra banda, con su propio mural e historial (los del laburo
+  // aparte de los de la facu). Arranca creando su primer partido.
+  function crearGrupoNuevo() {
+    banda = null;
+    nombreMuroDemo = "Tu nuevo grupo";
+    nombreMuroEditadoAMano = false;
+    mostrarToast("➕ Nuevo grupo: armá su primer partido y quien entre queda en él");
+    go("crear");
+    setConvocatoria("nueva");
   }
 
   function copiarInvitacion() {
