@@ -287,9 +287,8 @@
     faseUC = anotados.length >= MINIMO ? "sejuega" : "convocando";
     renderEstado();
     renderMuro();
-    go("anotado");
-    // Ya sos parte del club: te redirigimos a su muro
-    setTimeout(() => { window.location.href = "demo.html"; }, 2600);
+    // Ya sos parte del club: al muro, directo y sin esperas
+    window.location.href = "demo.html";
   }
 
   // Muro del partido: comentarios que quedan EN el partido.
