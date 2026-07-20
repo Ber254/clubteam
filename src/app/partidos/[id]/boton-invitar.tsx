@@ -32,7 +32,7 @@ export function BotonInvitar({ link, mensaje }: { link: string; mensaje: string 
 
       {toast && (
         <div className="fixed inset-x-0 bottom-6 z-50 flex justify-center px-5">
-          <div className="rounded-xl bg-texto px-5 py-3 text-center text-sm font-medium text-white shadow-xl">
+          <div className="rounded-xl bg-[#1b1b1b] px-5 py-3 text-center text-sm font-medium text-white shadow-xl">
             ✅ Invitación copiada, ahora pegala en tu grupo de WhatsApp
           </div>
         </div>
