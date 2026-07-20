@@ -2,6 +2,7 @@ import Link from "next/link";
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { formatFecha } from "@/lib/fechas";
+import { TrapoClub } from "./trapo-club";
 
 type ClubRow = { id: string; nombre: string } | null;
 
@@ -61,19 +62,9 @@ export default async function DashboardPage() {
         </form>
       </div>
 
-      {/* Trapo con el nombre del club */}
+      {/* Trapo con el nombre del club (editable si ya existe) */}
       <div className="text-center">
-        <div
-          className="relative inline-block px-8 py-4 text-lg font-extrabold uppercase tracking-wider text-white"
-          style={{
-            background: "var(--color-verde-acento)",
-            transform: "rotate(-1.2deg)",
-            boxShadow:
-              "inset 0 0 0 2px rgba(255,255,255,.5), 0 5px 16px rgba(0,0,0,.18)",
-          }}
-        >
-          {club?.nombre ?? "Tu club"}
-        </div>
+        <TrapoClub clubId={club?.id ?? null} nombreInicial={club?.nombre ?? "Tu club"} />
       </div>
 
       {/* TV */}
