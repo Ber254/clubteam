@@ -4,7 +4,7 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/client";
-import { POSICIONES } from "@/lib/posiciones";
+import { SelectorRol } from "@/app/selector-rol";
 
 // Crear partido = crear club. El club nace con este partido; los que se
 // anoten por el link quedan asignados a él. El usuario no crea "grupos".
@@ -178,17 +178,7 @@ export default function NuevoPartidoPage() {
         {juega && (
           <div>
             <p className="mb-1 text-xs font-semibold uppercase opacity-60">Tu puesto</p>
-            <select
-              value={rol}
-              onChange={(e) => setRol(e.target.value)}
-              className="w-full rounded-lg border border-black/15 bg-blanco-cancha px-3 py-3 outline-none focus:border-verde-acento"
-            >
-              {POSICIONES.map((p) => (
-                <option key={p} value={p}>
-                  {p}
-                </option>
-              ))}
-            </select>
+            <SelectorRol value={rol} onChange={setRol} />
           </div>
         )}
 

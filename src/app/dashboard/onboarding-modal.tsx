@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
-import { POSICIONES } from "@/lib/posiciones";
+import { SelectorRol } from "@/app/selector-rol";
 
 // Se pide UNA sola vez, obligatorio: apodo + rol preferido. Sin botón de
 // cerrar ni click-afuera: solo se cierra completando y guardando.
@@ -77,22 +77,7 @@ export function OnboardingModal() {
             <p className="mb-1 text-xs font-semibold uppercase opacity-60">
               ¿En qué te gusta jugar?
             </p>
-            <div className="grid grid-cols-2 gap-2">
-              {POSICIONES.map((p) => (
-                <button
-                  key={p}
-                  type="button"
-                  onClick={() => setRol(p)}
-                  className={`rounded-lg border py-2.5 text-sm font-medium ${
-                    rol === p
-                      ? "border-verde-acento bg-verde-acento/10 text-verde-acento"
-                      : "border-black/15"
-                  }`}
-                >
-                  {p}
-                </button>
-              ))}
-            </div>
+            <SelectorRol value={rol} onChange={setRol} />
           </div>
 
           <button
