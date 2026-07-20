@@ -140,7 +140,8 @@
       <div class="center" id="estadoConfirm">
         <div style="font-size:40px;">✅</div>
         <h2>¡Listo, estás anotado!</h2>
-        <p class="sub">Te sumaste como <strong id="mis-roles"></strong>.<br>Guardá el link: cada vez que lo abras vas a ver cómo viene el partido.</p>
+        <p class="sub">Te sumaste como <strong id="mis-roles"></strong>.<br>Te llevamos al muro del club…</p>
+        <a class="btn btn-primary" href="demo.html" style="margin-top:12px; text-decoration:none;">🏟️ Ir al muro del club →</a>
       </div>
 
       <div class="card pad">
@@ -287,6 +288,8 @@
     renderEstado();
     renderMuro();
     go("anotado");
+    // Ya sos parte del club: te redirigimos a su muro
+    setTimeout(() => { window.location.href = "demo.html"; }, 2600);
   }
 
   // Muro del partido: comentarios que quedan EN el partido.
