@@ -88,7 +88,7 @@ function LoginForm() {
         <p className="text-sm opacity-70">
           {esRegistro
             ? "Creá tu cuenta para arrancar."
-            : "Organizá tus partidos con los pibes."}
+            : "Juntá a tu equipo y salgan a jugar."}
         </p>
       </div>
 
