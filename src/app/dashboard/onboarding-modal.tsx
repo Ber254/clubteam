@@ -21,22 +21,32 @@ export function OnboardingModal() {
     setEnviando(true);
     setError("");
 
-    const {
-      data: { user },
-    } = await supabase.auth.getUser();
-    if (!user) return;
+    try {
+      const {
+        data: { user },
+      } = await supabase.auth.getUser();
+      if (!user) {
+        setError("Se venció tu sesión, recargá la página.");
+        setEnviando(false);
+        return;
+      }
 
-    const { error: e1 } = await supabase
-      .from("jugadores")
-      .update({ apodo: apodo.trim().slice(0, 30), posicion_preferida: rol })
-      .eq("id", user.id);
+      const { error: e1 } = await supabase
+        .from("jugadores")
+        .update({ apodo: apodo.trim().slice(0, 30), posicion_preferida: rol })
+        .eq("id", user.id);
 
-    if (e1) {
-      setError(e1.message);
+      if (e1) {
+        setError(e1.message);
+        setEnviando(false);
+        return;
+      }
+      router.refresh();
       setEnviando(false);
-      return;
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Algo salió mal, probá de nuevo.");
+      setEnviando(false);
     }
-    router.refresh();
   }
 
   return (
