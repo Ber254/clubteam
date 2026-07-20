@@ -3,6 +3,7 @@ import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { formatFecha } from "@/lib/fechas";
 import { TrapoClub } from "./trapo-club";
+import { OnboardingModal } from "./onboarding-modal";
 
 type ClubRow = { id: string; nombre: string } | null;
 
@@ -19,7 +20,7 @@ export default async function DashboardPage() {
 
   const { data: jugador } = await supabase
     .from("jugadores")
-    .select("nombre")
+    .select("nombre, apodo")
     .eq("id", user.id)
     .single();
 
@@ -46,10 +47,12 @@ export default async function DashboardPage() {
     : { data: null };
 
   const proximo = partidos?.[0] ?? null;
-  const nombre = jugador?.nombre ?? user.email;
+  const nombre = jugador?.apodo || jugador?.nombre || user.email;
 
   return (
     <main className="mx-auto w-full max-w-md flex-1 space-y-5 p-5">
+      {!jugador?.apodo && <OnboardingModal />}
+
       <div className="flex items-center justify-between">
         <p className="text-sm opacity-70">Hola, {nombre} 👋</p>
         <form action="/auth/signout" method="post">

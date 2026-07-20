@@ -31,6 +31,7 @@ npm install
    - `supabase/migrations/0004_partidos_equipos.sql`
    - `supabase/migrations/0005_resultados.sql`
    - `supabase/migrations/0006_partido_first.sql`
+   - `supabase/migrations/0007_apodo.sql`
 
    (O si usás el [Supabase CLI](https://supabase.com/docs/guides/cli): `supabase db push`.)
 
