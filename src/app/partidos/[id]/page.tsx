@@ -2,9 +2,16 @@ import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { formatFecha } from "@/lib/fechas";
+import { POSICIONES } from "@/lib/posiciones";
+import { ICONOS_ROL } from "@/app/selector-rol";
+import { BotonInvitar } from "./boton-invitar";
 
-// Convocatoria mínima: fecha, lugar y quiénes se anotaron.
-// (El armador de equipos y el resto del flujo llegan en el próximo paso.)
+type Anotado = {
+  jugador_id: string;
+  posicion_jugada: string | null;
+  jugadores: { nombre: string } | null;
+};
+
 export default async function PartidoPage({
   params,
 }: {
@@ -29,46 +36,96 @@ export default async function PartidoPage({
     .from("participaciones")
     .select("jugador_id, posicion_jugada, jugadores(nombre)")
     .eq("partido_id", id)
-    .returns<{ jugador_id: string; posicion_jugada: string | null; jugadores: { nombre: string } | null }[]>();
+    .returns<Anotado[]>();
 
-  const cantidad = anotados?.length ?? 0;
+  const lista = anotados ?? [];
+  const cantidad = lista.length;
+  const faltan = Math.max(0, partido.minimo - cantidad);
+  const seJuega = cantidad >= partido.minimo;
+  const porRol = POSICIONES.map((rol) => ({
+    rol,
+    gente: lista.filter((a) => (a.posicion_jugada ?? "Donde sea") === rol),
+  })).filter((g) => g.gente.length > 0);
+
+  const link = `https://clubteam-two.vercel.app/partidos/${id}`;
+  const mensaje = `No te cagues, vení al partido 😤\nJugamos ${formatFecha(partido.fecha)}${partido.cancha ? " en " + partido.cancha : ""}.\nAnotate y elegí tu puesto 👉 ${link}`;
 
   return (
-    <main className="mx-auto w-full max-w-md flex-1 space-y-5 p-5">
+    <main className="mx-auto w-full max-w-md flex-1 space-y-4 p-5">
       <Link href="/dashboard" className="text-sm opacity-60 hover:opacity-100">
         ← Inicio
       </Link>
 
-      <div className="rounded-xl border-2 border-verde-acento bg-verde-acento/10 p-4">
-        <p className="font-bold text-verde-acento">📣 Invitación al partido</p>
-        <p className="mb-2 text-xs uppercase opacity-70">Copiá este link y pegalo en el grupo</p>
-        <code className="block truncate rounded-lg border border-black/15 bg-blanco-cancha px-3 py-2 text-sm">
-          {`clubteam-two.vercel.app/partidos/${id}`}
-        </code>
-      </div>
+      {/* Planilla del DT: portapapeles de madera + hoja */}
+      <div
+        className="relative rounded-2xl p-4 pb-5"
+        style={{
+          background:
+            "repeating-linear-gradient(91deg, #9c6b3f 0 7px, #a9764a 7px 15px, #915f36 15px 22px)",
+          boxShadow: "0 6px 18px rgba(0,0,0,.28), inset 0 0 0 1px rgba(0,0,0,.15)",
+        }}
+      >
+        <div
+          className="absolute left-1/2 -top-2 h-6 w-20 -translate-x-1/2 rounded-b-sm rounded-t-md border border-[#8a9096]"
+          style={{
+            background: "linear-gradient(#fdfdfd, #c9ccd1 55%, #9aa0a6)",
+            boxShadow: "0 2px 5px rgba(0,0,0,.35)",
+          }}
+        />
 
-      <div className="rounded-xl border border-black/10 bg-blanco-cancha p-4">
-        <p className="text-lg font-semibold">{formatFecha(partido.fecha)}</p>
-        {partido.cancha && <p className="text-sm opacity-60">{partido.cancha}</p>}
-        <p className="mt-2 text-sm font-medium text-verde-acento">
-          {cantidad}/{partido.minimo} anotados
-        </p>
-      </div>
+        <div className="rounded-md bg-[#fffdf5] p-4 shadow-inner">
+          <BotonInvitar link={link} mensaje={mensaje} />
 
-      <div>
-        <p className="mb-1 text-xs font-semibold uppercase opacity-60">Anotados</p>
-        <div className="divide-y divide-black/10 rounded-xl border border-black/10 bg-blanco-cancha">
-          {(anotados ?? []).map((a) => (
-            <div key={a.jugador_id} className="px-4 py-3">
-              <p className="font-medium">{a.jugadores?.nombre ?? "Jugador"}</p>
-              <p className="text-sm opacity-60">{a.posicion_jugada ?? "Sin puesto"}</p>
+          {seJuega && (
+            <div className="mt-4 rounded-xl bg-verde-acento p-4 text-center font-bold text-white shadow-md">
+              🎉 Plantel listo, a organizar los equipos
             </div>
-          ))}
-          {cantidad === 0 && (
-            <p className="px-4 py-6 text-center text-sm opacity-60">
-              Todavía no se anotó nadie.
-            </p>
           )}
+
+          <div className="mt-4">
+            <div className="flex items-center justify-between">
+              <span className="text-xl font-bold">
+                {cantidad}/{partido.minimo}
+              </span>
+              <span className="rounded-full bg-black/5 px-2 py-1 text-xs font-medium">
+                {seJuega ? "✅ ¡Se juega!" : `Faltan ${faltan} para que se juegue`}
+              </span>
+            </div>
+            <div className="mt-2 h-2.5 rounded-full bg-black/10">
+              <div
+                className="h-full rounded-full bg-verde-acento transition-all"
+                style={{ width: `${Math.min(100, (cantidad / partido.minimo) * 100)}%` }}
+              />
+            </div>
+          </div>
+
+          <div className="mt-4">
+            <p className="text-lg font-semibold">{formatFecha(partido.fecha)}</p>
+            {partido.cancha && <p className="text-sm opacity-60">{partido.cancha}</p>}
+          </div>
+
+          <div className="mt-4 space-y-3">
+            <p className="text-xs font-semibold uppercase opacity-60">Titulares</p>
+            {porRol.length === 0 && (
+              <p className="rounded-lg border border-dashed border-black/15 py-6 text-center text-sm opacity-60">
+                Todavía no se anotó nadie.
+              </p>
+            )}
+            {porRol.map(({ rol, gente }) => (
+              <div key={rol}>
+                <p className="mb-1 text-xs font-semibold uppercase opacity-60">
+                  {ICONOS_ROL[rol]} {rol} ({gente.length})
+                </p>
+                <div className="divide-y divide-black/10 rounded-lg border border-black/10 bg-white">
+                  {gente.map((a) => (
+                    <p key={a.jugador_id} className="px-3 py-2 font-medium">
+                      {a.jugadores?.nombre ?? "Jugador"}
+                    </p>
+                  ))}
+                </div>
+              </div>
+            ))}
+          </div>
         </div>
       </div>
     </main>

@@ -3,7 +3,7 @@
 import { useMemo } from "react";
 import { POSICIONES, fraseDondeSea } from "@/lib/posiciones";
 
-const ICONOS: Record<string, string> = {
+export const ICONOS_ROL: Record<string, string> = {
   Arquero: "🧤",
   Defensa: "🛡️",
   Ataque: "⚽",
@@ -34,7 +34,7 @@ export function SelectorRol({
               : "border-black/15 hover:bg-black/5"
           }`}
         >
-          <span className="mb-1 block text-xl">{ICONOS[p]}</span>
+          <span className="mb-1 block text-xl">{ICONOS_ROL[p]}</span>
           {p === "Donde sea" ? etiquetaDondeSea : p}
         </button>
       ))}
