@@ -5,6 +5,14 @@ import { formatFecha } from "@/lib/fechas";
 import { POSICIONES } from "@/lib/posiciones";
 import { ICONOS_ROL } from "@/app/selector-rol";
 import { BotonInvitar } from "./boton-invitar";
+import { MuroPrevia } from "./muro-previa";
+
+type ComentarioRow = {
+  id: string;
+  texto: string;
+  jugador_id: string;
+  jugadores: { nombre: string; apodo: string | null } | null;
+};
 
 type Anotado = {
   jugador_id: string;
@@ -27,7 +35,7 @@ export default async function PartidoPage({
 
   const { data: partido } = await supabase
     .from("partidos")
-    .select("id, fecha, cancha, minimo, grupo_id")
+    .select("id, fecha, cancha, minimo, grupo_id, creado_por")
     .eq("id", id)
     .single();
   if (!partido) notFound();
@@ -46,6 +54,21 @@ export default async function PartidoPage({
     rol,
     gente: lista.filter((a) => (a.posicion_jugada ?? "Donde sea") === rol),
   })).filter((g) => g.gente.length > 0);
+
+  const { data: comentarios } = await supabase
+    .from("comentarios")
+    .select("id, texto, jugador_id, jugadores(nombre, apodo)")
+    .eq("partido_id", id)
+    .order("created_at", { ascending: true })
+    .returns<ComentarioRow[]>();
+
+  const previaInicial = (comentarios ?? []).map((c) => ({
+    id: c.id,
+    texto: c.texto,
+    jugador_id: c.jugador_id,
+    autor: c.jugadores?.apodo || c.jugadores?.nombre || "Jugador",
+    esOrg: c.jugador_id === partido.creado_por,
+  }));
 
   const link = `https://clubteam-two.vercel.app/partidos/${id}`;
   const mensaje = `No te cagues, vení al partido 😤\nJugamos ${formatFecha(partido.fecha)}${partido.cancha ? " en " + partido.cancha : ""}.\nAnotate y elegí tu puesto 👉 ${link}`;
@@ -126,6 +149,12 @@ export default async function PartidoPage({
               </div>
             ))}
           </div>
+
+          <MuroPrevia
+            partidoId={partido.id}
+            creadoPor={partido.creado_por}
+            inicial={previaInicial}
+          />
         </div>
       </div>
     </main>
