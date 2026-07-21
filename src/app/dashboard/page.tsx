@@ -5,6 +5,7 @@ import { formatFecha } from "@/lib/fechas";
 import { TrapoClub } from "./trapo-club";
 import { OnboardingModal } from "./onboarding-modal";
 import { TvAcciones } from "./tv-acciones";
+import { SuspenderFecha } from "./suspender-fecha";
 import { MuroPrevia } from "@/app/partidos/[id]/muro-previa";
 
 type ClubRow = { id: string; nombre: string } | null;
@@ -43,18 +44,26 @@ export default async function DashboardPage() {
 
   const club = membresias?.[0]?.grupos ?? null;
 
-  // Próximo partido del club (si hay)
+  // Partidos planificados del club (sin jugados ni suspendidos)
   const { data: partidos } = club
     ? await supabase
         .from("partidos")
         .select("id, fecha, cancha, estado, codigo_invitacion, minimo, creado_por")
         .eq("grupo_id", club.id)
         .neq("estado", "jugado")
+        .neq("estado", "suspendido")
         .order("fecha", { ascending: true })
-        .limit(1)
     : { data: null };
 
   const proximo = partidos?.[0] ?? null;
+
+  // Fechas que el usuario (creador) puede suspender
+  const suspendibles = (partidos ?? [])
+    .filter((p) => p.creado_por === user.id)
+    .map((p) => ({
+      id: p.id,
+      etiqueta: formatFecha(p.fecha) + (p.cancha ? ` · ${p.cancha}` : ""),
+    }));
 
   // Cuántos se anotaron al próximo partido
   const { count: anotados } = proximo
@@ -106,15 +115,18 @@ export default async function DashboardPage() {
         <TrapoClub clubId={club?.id ?? null} nombreInicial={club?.nombre ?? "Tu club"} />
       </div>
 
-      {/* TV */}
+      {/* TV — borde derecho ensanchado para la perilla de suspender */}
       <div
-        className="relative mt-12 rounded-2xl p-4 pb-5"
+        className="relative mt-12 rounded-2xl pb-5 pl-4 pr-14 pt-4"
         style={{
           background: "linear-gradient(#6a4a33, #4e3722)",
           boxShadow:
             "inset 0 0 0 3px rgba(255,255,255,.08), 0 10px 24px rgba(0,0,0,.3)",
         }}
       >
+        {/* Perilla de suspender fecha (solo la ve el creador) */}
+        <SuspenderFecha partidos={suspendibles} />
+
         {/* Antena */}
         <svg
           viewBox="0 0 120 60"
