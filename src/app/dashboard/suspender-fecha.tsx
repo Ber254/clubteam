@@ -4,27 +4,27 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
 
-type PartidoItem = { id: string; etiqueta: string };
-
 // Perilla estilo TV de los 80 sobre el borde derecho del televisor.
-// Solo la ve el creador (si no tiene partidos suspendibles, no se renderiza).
-// Al accionarla, un diálogo lista las fechas planificadas para elegir cuál
-// suspender. Suspender = estado 'suspendido' (sale del muro).
-export function SuspenderFecha({ partidos }: { partidos: PartidoItem[] }) {
+// Suspende ESTA fecha (la de su propio TV). Solo se renderiza para el creador.
+export function SuspenderFecha({
+  partidoId,
+  etiqueta,
+}: {
+  partidoId: string;
+  etiqueta: string;
+}) {
   const supabase = createClient();
   const router = useRouter();
   const [abierto, setAbierto] = useState(false);
-  const [suspendiendo, setSuspendiendo] = useState<string | null>(null);
+  const [suspendiendo, setSuspendiendo] = useState(false);
 
-  if (partidos.length === 0) return null;
-
-  async function suspender(id: string) {
-    setSuspendiendo(id);
+  async function suspender() {
+    setSuspendiendo(true);
     const { error } = await supabase
       .from("partidos")
       .update({ estado: "suspendido" })
-      .eq("id", id);
-    setSuspendiendo(null);
+      .eq("id", partidoId);
+    setSuspendiendo(false);
     if (!error) {
       setAbierto(false);
       router.refresh();
@@ -37,7 +37,7 @@ export function SuspenderFecha({ partidos }: { partidos: PartidoItem[] }) {
       <button
         type="button"
         onClick={() => setAbierto(true)}
-        title="Suspender una fecha"
+        title="Suspender esta fecha"
         className="absolute right-1.5 top-1/2 flex -translate-y-1/2 flex-col items-center gap-1.5"
       >
         <span
@@ -57,7 +57,7 @@ export function SuspenderFecha({ partidos }: { partidos: PartidoItem[] }) {
         </span>
       </button>
 
-      {/* Diálogo para elegir qué fecha suspender */}
+      {/* Confirmación */}
       {abierto && (
         <div
           className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-5"
@@ -67,31 +67,27 @@ export function SuspenderFecha({ partidos }: { partidos: PartidoItem[] }) {
             className="w-full max-w-sm rounded-2xl bg-white p-5 shadow-xl"
             onClick={(e) => e.stopPropagation()}
           >
-            <h2 className="text-lg font-bold">¿Qué fecha suspendés?</h2>
-            <p className="mt-1 text-sm opacity-60">
+            <h2 className="text-lg font-bold">¿Suspender esta fecha?</h2>
+            <p className="mt-1 text-sm opacity-70">{etiqueta}</p>
+            <p className="mt-2 text-sm opacity-60">
               El partido se saca del muro. Después podés armar otra fecha.
             </p>
-            <div className="mt-3 space-y-2">
-              {partidos.map((p) => (
-                <button
-                  key={p.id}
-                  onClick={() => suspender(p.id)}
-                  disabled={suspendiendo !== null}
-                  className="flex w-full items-center justify-between gap-2 rounded-lg border border-black/15 px-3 py-3 text-left transition-colors hover:border-red-400 hover:bg-red-50 disabled:opacity-50"
-                >
-                  <span className="font-medium">{p.etiqueta}</span>
-                  <span className="shrink-0 text-sm font-medium text-red-500">
-                    {suspendiendo === p.id ? "Suspendiendo…" : "Suspender"}
-                  </span>
-                </button>
-              ))}
+            <div className="mt-4 grid grid-cols-2 gap-2">
+              <button
+                onClick={() => setAbierto(false)}
+                disabled={suspendiendo}
+                className="rounded-lg border border-black/15 py-2.5 text-sm font-medium transition-colors hover:bg-black/5 disabled:opacity-50"
+              >
+                Cancelar
+              </button>
+              <button
+                onClick={suspender}
+                disabled={suspendiendo}
+                className="rounded-lg bg-red-500 py-2.5 text-sm font-medium text-white transition-opacity hover:opacity-90 disabled:opacity-50"
+              >
+                {suspendiendo ? "Suspendiendo…" : "Suspender"}
+              </button>
             </div>
-            <button
-              onClick={() => setAbierto(false)}
-              className="mt-4 w-full rounded-lg border border-black/15 py-2.5 text-sm font-medium transition-colors hover:bg-black/5"
-            >
-              Cancelar
-            </button>
           </div>
         </div>
       )}
