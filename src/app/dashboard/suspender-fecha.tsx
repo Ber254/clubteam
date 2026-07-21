@@ -48,7 +48,7 @@ export function SuspenderFecha({
         type="button"
         onClick={() => setAbierto(true)}
         title="Suspender esta fecha"
-        className="flex h-24 w-8 items-center justify-center rounded-md text-white transition-transform active:translate-y-[1px]"
+        className="flex h-14 w-14 items-center justify-center rounded-md p-1 text-center text-[9px] font-bold uppercase leading-tight tracking-wide text-white transition-transform active:translate-y-[1px]"
         style={{
           background: "linear-gradient(#e23b3b, #b5261f)",
           border: "1.5px solid #7d1712",
@@ -56,12 +56,7 @@ export function SuspenderFecha({
             "inset 0 1px 1px rgba(255,255,255,.35), 0 2px 4px rgba(0,0,0,.45)",
         }}
       >
-        <span
-          className="whitespace-nowrap text-[10px] font-bold uppercase tracking-wide"
-          style={{ transform: "rotate(-90deg)" }}
-        >
-          Suspender fecha
-        </span>
+        Suspender fecha
       </button>
 
       {/* Confirmación */}

@@ -42,7 +42,7 @@ export function TvMuro({
 
   return (
     <div
-      className="relative mt-12 rounded-2xl pb-5 pl-4 pr-14 pt-4"
+      className="relative mt-12 rounded-2xl pb-5 pl-4 pr-20 pt-4"
       style={{
         background: "linear-gradient(#6a4a33, #4e3722)",
         boxShadow: "inset 0 0 0 3px rgba(255,255,255,.08), 0 10px 24px rgba(0,0,0,.3)",
