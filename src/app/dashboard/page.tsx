@@ -4,8 +4,16 @@ import { createClient } from "@/lib/supabase/server";
 import { formatFecha } from "@/lib/fechas";
 import { TrapoClub } from "./trapo-club";
 import { OnboardingModal } from "./onboarding-modal";
+import { TvAcciones } from "./tv-acciones";
+import { MuroPrevia } from "@/app/partidos/[id]/muro-previa";
 
 type ClubRow = { id: string; nombre: string } | null;
+type ComentarioRow = {
+  id: string;
+  texto: string;
+  jugador_id: string;
+  jugadores: { nombre: string; apodo: string | null } | null;
+};
 
 // El muro del club: lo primero que ve el usuario al entrar.
 // Sin club todavía => TV sin partido + "Crear partido" (el club nace solo
@@ -39,7 +47,7 @@ export default async function DashboardPage() {
   const { data: partidos } = club
     ? await supabase
         .from("partidos")
-        .select("id, fecha, cancha, estado")
+        .select("id, fecha, cancha, estado, codigo_invitacion, minimo, creado_por")
         .eq("grupo_id", club.id)
         .neq("estado", "jugado")
         .order("fecha", { ascending: true })
@@ -47,6 +55,25 @@ export default async function DashboardPage() {
     : { data: null };
 
   const proximo = partidos?.[0] ?? null;
+
+  // Comentarios de la previa del próximo partido
+  const { data: comentarios } = proximo
+    ? await supabase
+        .from("comentarios")
+        .select("id, texto, jugador_id, jugadores(nombre, apodo)")
+        .eq("partido_id", proximo.id)
+        .order("created_at", { ascending: true })
+        .returns<ComentarioRow[]>()
+    : { data: null };
+
+  const previaInicial = (comentarios ?? []).map((c) => ({
+    id: c.id,
+    texto: c.texto,
+    jugador_id: c.jugador_id,
+    autor: c.jugadores?.apodo || c.jugadores?.nombre || "Jugador",
+    esOrg: c.jugador_id === (proximo?.creado_por ?? ""),
+  }));
+
   const nombre = jugador?.apodo || jugador?.nombre || user.email;
 
   return (
@@ -105,19 +132,26 @@ export default async function DashboardPage() {
           }}
         >
           {proximo ? (
-            <div className="space-y-1">
+            <div>
               <p className="text-lg font-semibold">
                 {formatFecha(proximo.fecha)}
               </p>
               {proximo.cancha && (
                 <p className="text-sm opacity-60">{proximo.cancha}</p>
               )}
-              <Link
-                href={`/partidos/${proximo.id}`}
-                className="mt-2 block font-medium text-verde-acento"
-              >
-                👥 Ver la convocatoria →
-              </Link>
+
+              <TvAcciones
+                partidoId={proximo.id}
+                codigo={proximo.codigo_invitacion}
+                cuando={formatFecha(proximo.fecha)}
+                lugar={proximo.cancha}
+              />
+
+              <MuroPrevia
+                partidoId={proximo.id}
+                creadoPor={proximo.creado_por}
+                inicial={previaInicial}
+              />
             </div>
           ) : (
             <div className="space-y-2 py-4 text-center">
