@@ -33,28 +33,21 @@ export function SuspenderFecha({
 
   return (
     <>
-      {/* Perilla en el borde derecho del televisor */}
+      {/* Botón rojo en el borde derecho del televisor */}
       <button
         type="button"
         onClick={() => setAbierto(true)}
         title="Suspender esta fecha"
-        className="absolute right-1.5 top-1/2 flex -translate-y-1/2 flex-col items-center gap-1.5"
+        className="absolute right-2 top-1/2 flex h-24 w-8 -translate-y-1/2 items-center justify-center rounded-md text-[10px] font-bold uppercase tracking-wide text-white transition-transform active:translate-y-[calc(-50%+1px)]"
+        style={{
+          background: "linear-gradient(#e23b3b, #b5261f)",
+          border: "1.5px solid #7d1712",
+          boxShadow:
+            "inset 0 1px 1px rgba(255,255,255,.35), 0 2px 4px rgba(0,0,0,.45)",
+          writingMode: "vertical-rl",
+        }}
       >
-        <span
-          className="size-7 rounded-full active:translate-y-px"
-          style={{
-            background: "radial-gradient(circle at 35% 30%, #e8e2d6, #b9ad99 60%, #8f8471)",
-            border: "2px solid #2e2114",
-            boxShadow:
-              "inset 0 1px 1px rgba(255,255,255,.6), 0 2px 3px rgba(0,0,0,.45)",
-          }}
-        />
-        <span
-          className="text-[9px] font-bold uppercase leading-none tracking-wide text-white/85"
-          style={{ writingMode: "vertical-rl", transform: "rotate(180deg)" }}
-        >
-          Suspender fecha
-        </span>
+        Suspender fecha
       </button>
 
       {/* Confirmación */}
