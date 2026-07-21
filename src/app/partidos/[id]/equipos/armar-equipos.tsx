@@ -175,14 +175,32 @@ export function ArmarEquipos({
     B: fraseDe(equipos.B),
   }));
   const [nombres, setNombres] = useState<Nombres>({ A: "Primera", B: "Reserva" });
+  const [banco, setBanco] = useState<J[]>([]);
   const [editando, setEditando] = useState<null | "A" | "B">(null);
   const [toast, setToast] = useState(false);
 
   function mezclar() {
     const e = armar(jugadores);
     setEquipos(e);
+    setBanco([]);
     setFrases({ A: fraseDe(e.A), B: fraseDe(e.B) });
     setEditando(null);
+  }
+
+  // Mandar un jugador al banco (lo saca de su equipo)
+  function alBanco(eq: "A" | "B", p: J) {
+    const nuevo = equipos[eq].filter((x) => x.id !== p.id);
+    setEquipos({ ...equipos, [eq]: nuevo });
+    setBanco([...banco, p]);
+    setFrases({ ...frases, [eq]: nuevo.length ? fraseDe(nuevo) : "" });
+  }
+
+  // Asignar un jugador del banco a un equipo
+  function aEquipo(p: J, eq: "A" | "B") {
+    const nuevo = [...equipos[eq], p];
+    setEquipos({ ...equipos, [eq]: nuevo });
+    setBanco(banco.filter((x) => x.id !== p.id));
+    setFrases({ ...frases, [eq]: fraseDe(nuevo) });
   }
 
   function sortearNombres() {
@@ -246,11 +264,24 @@ export function ArmarEquipos({
 
         <div className="space-y-1">
           {arr.map((p) => (
-            <p key={p.id} className="flex items-center gap-1.5 rounded-md bg-black/[0.03] px-2 py-1.5 text-sm">
+            <div key={p.id} className="flex items-center gap-1.5 rounded-md bg-black/[0.03] px-2 py-1.5 text-sm">
               <span aria-hidden="true">{ICON[p.rol] ?? "🔄"}</span>
-              <span className="truncate font-medium">{p.nombre}</span>
-            </p>
+              <span className="min-w-0 flex-1 truncate font-medium">{p.nombre}</span>
+              <button
+                type="button"
+                onClick={() => alBanco(eq, p)}
+                title="Mandar al banco"
+                className="shrink-0 rounded border border-black/10 bg-white px-1.5 py-0.5 text-xs hover:bg-black/5"
+              >
+                ↓ Banco
+              </button>
+            </div>
           ))}
+          {arr.length === 0 && (
+            <p className="rounded-md border border-dashed border-black/15 py-3 text-center text-xs opacity-50">
+              Sin jugadores
+            </p>
+          )}
         </div>
 
         <Radar arr={arr} />
@@ -272,6 +303,41 @@ export function ArmarEquipos({
         <Columna eq="A" dot="🔵" />
         <Columna eq="B" dot="🔴" />
       </div>
+
+      {/* Banco: jugadores sin equipo, listos para reasignar */}
+      {banco.length > 0 && (
+        <div className="mt-3 rounded-xl border border-dashed border-black/25 bg-black/[0.02] p-3">
+          <p className="mb-2 text-xs font-semibold uppercase opacity-60">
+            🪑 Banco ({banco.length})
+          </p>
+          <div className="space-y-1.5">
+            {banco.map((p) => (
+              <div key={p.id} className="rounded-md border border-black/10 bg-white px-2 py-1.5">
+                <p className="flex items-center gap-1.5 text-sm">
+                  <span aria-hidden="true">{ICON[p.rol] ?? "🔄"}</span>
+                  <span className="min-w-0 flex-1 truncate font-medium">{p.nombre}</span>
+                </p>
+                <div className="mt-1 grid grid-cols-2 gap-1">
+                  <button
+                    type="button"
+                    onClick={() => aEquipo(p, "A")}
+                    className="truncate rounded border border-black/10 px-1.5 py-1 text-xs hover:bg-black/5"
+                  >
+                    🔵 {nombres.A}
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => aEquipo(p, "B")}
+                    className="truncate rounded border border-black/10 px-1.5 py-1 text-xs hover:bg-black/5"
+                  >
+                    🔴 {nombres.B}
+                  </button>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
 
       <button
         onClick={copiar}
