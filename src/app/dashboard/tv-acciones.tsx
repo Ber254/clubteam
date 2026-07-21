@@ -49,9 +49,9 @@ export function TvAcciones({
         </button>
         <Link
           href={`/partidos/${partidoId}`}
-          className="rounded-lg border border-black/15 bg-white px-2 py-2.5 text-center text-sm font-medium leading-tight"
+          className="flex items-center justify-center gap-1 rounded-lg border border-black/15 bg-white px-2 py-2.5 text-center text-sm font-medium leading-tight transition-colors hover:bg-black/5"
         >
-          ¿Cómo viene la organización?
+          ¿Cómo viene? <span aria-hidden="true">→</span>
         </Link>
       </div>
 
