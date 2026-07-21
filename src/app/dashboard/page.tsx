@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
+import { formatFecha } from "@/lib/fechas";
 import { TrapoClub } from "./trapo-club";
 import { OnboardingModal } from "./onboarding-modal";
 import { TvMuro } from "./tv-muro";
@@ -93,6 +94,18 @@ export default async function DashboardPage() {
     })
   );
 
+  // Historial: fechas suspendidas o ya jugadas (van debajo de los TVs)
+  const { data: historialRaw } = club
+    ? await supabase
+        .from("partidos")
+        .select("id, fecha, cancha, estado")
+        .eq("grupo_id", club.id)
+        .in("estado", ["suspendido", "jugado"])
+        .order("fecha", { ascending: false })
+    : { data: null };
+
+  const historial = historialRaw ?? [];
+
   return (
     <main className="mx-auto w-full max-w-md flex-1 space-y-5 p-5">
       {!jugador?.apodo && <OnboardingModal />}
@@ -163,6 +176,43 @@ export default async function DashboardPage() {
               formar tu club automáticamente.
             </p>
           </div>
+        </div>
+      )}
+
+      {/* Historial: fechas suspendidas o ya jugadas */}
+      {historial.length > 0 && (
+        <div className="space-y-2">
+          <p className="text-xs font-semibold uppercase opacity-50">Historial</p>
+          {historial.map((h) => {
+            const suspendido = h.estado === "suspendido";
+            return (
+              <Link
+                key={h.id}
+                href={`/partidos/${h.id}`}
+                className="flex items-center justify-between gap-2 rounded-lg border border-black/10 bg-black/[0.02] px-3 py-2.5 transition-colors hover:bg-black/5"
+              >
+                <div className="min-w-0">
+                  <p
+                    className={`truncate text-sm font-medium ${suspendido ? "line-through opacity-60" : ""}`}
+                  >
+                    {formatFecha(h.fecha)}
+                  </p>
+                  {h.cancha && (
+                    <p className="truncate text-xs opacity-50">{h.cancha}</p>
+                  )}
+                </div>
+                <span
+                  className={`shrink-0 rounded-full px-2 py-1 text-xs font-medium ${
+                    suspendido
+                      ? "bg-red-100 text-red-600"
+                      : "bg-verde-acento/10 text-verde-acento"
+                  }`}
+                >
+                  {suspendido ? "🚫 Suspendido" : "✅ Jugado"}
+                </span>
+              </Link>
+            );
+          })}
         </div>
       )}
 
