@@ -56,6 +56,18 @@ export default async function DashboardPage() {
 
   const proximo = partidos?.[0] ?? null;
 
+  // Cuántos se anotaron al próximo partido
+  const { count: anotados } = proximo
+    ? await supabase
+        .from("participaciones")
+        .select("*", { count: "exact", head: true })
+        .eq("partido_id", proximo.id)
+    : { count: 0 };
+
+  const cantidad = anotados ?? 0;
+  const faltan = proximo ? Math.max(0, proximo.minimo - cantidad) : 0;
+  const seJuega = proximo ? cantidad >= proximo.minimo : false;
+
   // Comentarios de la previa del próximo partido
   const { data: comentarios } = proximo
     ? await supabase
@@ -130,12 +142,28 @@ export default async function DashboardPage() {
         >
           {proximo ? (
             <div>
-              <p className="text-lg font-semibold">
-                {formatFecha(proximo.fecha)}
-              </p>
-              {proximo.cancha && (
-                <p className="text-sm opacity-60">{proximo.cancha}</p>
-              )}
+              {/* Zona clickeable: lleva a la organización del partido */}
+              <Link
+                href={`/partidos/${proximo.id}`}
+                className="-m-1 block rounded-lg p-1 transition-colors hover:bg-verde-acento/5"
+              >
+                <div className="flex items-start justify-between gap-2">
+                  <div>
+                    <p className="text-lg font-semibold">
+                      {formatFecha(proximo.fecha)}
+                    </p>
+                    {proximo.cancha && (
+                      <p className="text-sm opacity-60">{proximo.cancha}</p>
+                    )}
+                  </div>
+                  <span className="shrink-0 rounded-full bg-black/5 px-2 py-1 text-xs font-medium">
+                    {seJuega ? "✅ ¡Se juega!" : `Faltan ${faltan}`}
+                  </span>
+                </div>
+                <p className="mt-2 text-sm font-medium text-verde-acento">
+                  👥 Ver los {cantidad} anotados y armar equipos →
+                </p>
+              </Link>
 
               <TvAcciones
                 partidoId={proximo.id}
