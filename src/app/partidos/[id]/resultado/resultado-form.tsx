@@ -18,7 +18,6 @@ export function ResultadoForm({
   cuando: string;
 }) {
   const [nombres] = useState({ A: "Primera", B: "Reserva" });
-  const [marcador, setMarcador] = useState({ A: 0, B: 0 });
   const [sinAutor, setSinAutor] = useState({ A: 0, B: 0 });
   const [stats, setStats] = useState<Record<string, Stat>>(() => {
     const s: Record<string, Stat> = {};
@@ -33,6 +32,14 @@ export function ResultadoForm({
     setStats((prev) => ({ ...prev, [id]: { ...prev[id], ...patch } }));
   }
 
+  // Marcador calculado: goles por jugador de cada equipo + goles sin autor.
+  const golesEquipo = (js: Jugador[], eq: "A" | "B") =>
+    js.reduce((acc, j) => acc + stats[j.id].goles, 0) + sinAutor[eq];
+  const marcador = {
+    A: golesEquipo(equipoA, "A"),
+    B: golesEquipo(equipoB, "B"),
+  };
+
   const resultado =
     marcador.A === marcador.B
       ? `🤝 Empate ${marcador.A} - ${marcador.B}`
@@ -40,32 +47,13 @@ export function ResultadoForm({
         ? `🔵 Gana ${nombres.A} ${marcador.A} - ${marcador.B}`
         : `🔴 Gana ${nombres.B} ${marcador.B} - ${marcador.A}`;
 
-  function Stepper({
-    eq,
-    label,
-  }: {
-    eq: "A" | "B";
-    label: string;
-  }) {
+  // Marcador de solo lectura: refleja la suma de goles cargados abajo.
+  function Tanteador({ eq, label }: { eq: "A" | "B"; label: string }) {
     return (
       <div className="flex flex-col items-center">
-        <button
-          type="button"
-          onClick={() => setMarcador((m) => ({ ...m, [eq]: m[eq] + 1 }))}
-          className="flex h-8 w-14 items-center justify-center rounded-t-lg border border-black/15 bg-white text-sm hover:bg-black/5"
-        >
-          ▲
-        </button>
-        <div className="flex h-14 w-14 items-center justify-center border-x border-black/15 bg-white text-3xl font-bold tabular-nums">
+        <div className="flex h-16 w-16 items-center justify-center rounded-lg border border-black/15 bg-white text-4xl font-bold tabular-nums shadow-inner">
           {marcador[eq]}
         </div>
-        <button
-          type="button"
-          onClick={() => setMarcador((m) => ({ ...m, [eq]: clamp(m[eq] - 1) }))}
-          className="flex h-8 w-14 items-center justify-center rounded-b-lg border border-black/15 bg-white text-sm hover:bg-black/5"
-        >
-          ▼
-        </button>
         <span className="mt-1 text-xs font-medium opacity-60">{label}</span>
       </div>
     );
@@ -227,11 +215,11 @@ export function ResultadoForm({
 
   return (
     <div className="space-y-4">
-      {/* Marcador */}
+      {/* Marcador (calculado a partir de los goles cargados abajo) */}
       <div className="flex items-start justify-center gap-4">
-        <Stepper eq="A" label={nombres.A} />
-        <span className="mt-4 text-3xl font-bold opacity-40">-</span>
-        <Stepper eq="B" label={nombres.B} />
+        <Tanteador eq="A" label={nombres.A} />
+        <span className="mt-5 text-3xl font-bold opacity-40">-</span>
+        <Tanteador eq="B" label={nombres.B} />
       </div>
       <p className="text-center text-sm font-semibold">{resultado}</p>
 
