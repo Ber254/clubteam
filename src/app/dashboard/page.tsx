@@ -74,14 +74,11 @@ export default async function DashboardPage() {
     esOrg: c.jugador_id === (proximo?.creado_por ?? ""),
   }));
 
-  const nombre = jugador?.apodo || jugador?.nombre || user.email;
-
   return (
     <main className="mx-auto w-full max-w-md flex-1 space-y-5 p-5">
       {!jugador?.apodo && <OnboardingModal />}
 
-      <div className="flex items-center justify-between">
-        <p className="text-sm opacity-70">Hola, {nombre} 👋</p>
+      <div className="flex items-center justify-end">
         <form action="/auth/signout" method="post">
           <button
             type="submit"
