@@ -24,7 +24,7 @@ export function BotonInvitar({ mensaje }: { mensaje: string }) {
         onClick={copiar}
         className="w-full rounded-lg bg-verde-acento py-3 font-medium text-background transition-opacity hover:opacity-90"
       >
-        📲 Invitá más gente !!
+        📲 ¿Te falta gente? Convocá más gente con este link !!
       </button>
 
       {toast && (
