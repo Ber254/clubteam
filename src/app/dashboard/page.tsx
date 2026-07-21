@@ -7,6 +7,19 @@ import { OnboardingModal } from "./onboarding-modal";
 import { TvMuro } from "./tv-muro";
 
 type ClubRow = { id: string; nombre: string } | null;
+type Resultado = {
+  marcador: { A: number; B: number };
+  nombres: { A: string; B: string };
+  goleadores: { nombre: string; goles: number; equipo: string }[];
+  anecdota: string | null;
+} | null;
+type HistorialRow = {
+  id: string;
+  fecha: string;
+  cancha: string | null;
+  estado: string;
+  resultado: Resultado;
+};
 type ComentarioRow = {
   id: string;
   texto: string;
@@ -98,13 +111,25 @@ export default async function DashboardPage() {
   const { data: historialRaw } = club
     ? await supabase
         .from("partidos")
-        .select("id, fecha, cancha, estado")
+        .select("id, fecha, cancha, estado, resultado")
         .eq("grupo_id", club.id)
         .in("estado", ["suspendido", "jugado"])
         .order("fecha", { ascending: false })
+        .returns<HistorialRow[]>()
     : { data: null };
 
-  const historial = historialRaw ?? [];
+  const historialBase = historialRaw ?? [];
+
+  // Conteo de comentarios ("lo que pasó en la cancha") por partido del historial
+  const historial = await Promise.all(
+    historialBase.map(async (h) => {
+      const { count } = await supabase
+        .from("comentarios")
+        .select("*", { count: "exact", head: true })
+        .eq("partido_id", h.id);
+      return { ...h, comentarios: count ?? 0 };
+    })
+  );
 
   return (
     <main className="mx-auto w-full max-w-md flex-1 space-y-5 p-5">
@@ -182,9 +207,50 @@ export default async function DashboardPage() {
       {/* Historial: fechas suspendidas o ya jugadas */}
       {historial.length > 0 && (
         <div className="space-y-2">
-          <p className="text-xs font-semibold uppercase opacity-50">Historial</p>
+          <p className="text-xs font-semibold uppercase opacity-50">
+            🏁 Ya jugados
+          </p>
           {historial.map((h) => {
             const suspendido = h.estado === "suspendido";
+            const r = h.resultado;
+
+            // Card rica para partidos jugados con resultado cargado
+            if (!suspendido && r) {
+              const { A, B } = r.marcador;
+              const empate = A === B;
+              const titulo = empate
+                ? `Empataron ${A}-${B}`
+                : `Ganó ${A > B ? r.nombres.A : r.nombres.B} ${Math.max(A, B)}-${Math.min(A, B)}`;
+              const topGoleador = [...r.goleadores].sort(
+                (a, b) => b.goles - a.goles
+              )[0];
+              return (
+                <Link
+                  key={h.id}
+                  href={`/partidos/${h.id}`}
+                  className="block rounded-lg border border-black/10 bg-white px-3 py-2.5 shadow-sm transition-colors hover:bg-black/[0.02]"
+                >
+                  <p className="text-sm font-bold">{titulo}</p>
+                  <p className="mt-0.5 text-xs opacity-60">
+                    {formatFecha(h.fecha)}
+                    {topGoleador
+                      ? ` · ⚽ ${topGoleador.nombre} (${topGoleador.goles})`
+                      : ""}
+                  </p>
+                  {r.anecdota && (
+                    <p className="mt-1 truncate text-xs italic opacity-70">
+                      “{r.anecdota}”
+                    </p>
+                  )}
+                  <p className="mt-1 text-[11px] opacity-45">
+                    💬 {h.comentarios} comentario{h.comentarios === 1 ? "" : "s"} · lo
+                    que pasó en la cancha, quedó ahí
+                  </p>
+                </Link>
+              );
+            }
+
+            // Fila simple: suspendido, o jugado sin resultado cargado
             return (
               <Link
                 key={h.id}

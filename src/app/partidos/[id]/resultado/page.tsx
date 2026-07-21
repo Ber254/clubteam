@@ -88,6 +88,7 @@ export default async function ResultadoPage({
             </p>
           ) : (
             <ResultadoForm
+              partidoId={partido.id}
               equipoA={equipoA}
               equipoB={equipoB}
               cuando={formatFecha(partido.fecha)}

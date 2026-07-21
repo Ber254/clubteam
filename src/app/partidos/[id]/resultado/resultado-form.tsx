@@ -1,6 +1,8 @@
 "use client";
 
 import { useState } from "react";
+import { useRouter } from "next/navigation";
+import { createClient } from "@/lib/supabase/client";
 import { ICONOS_ROL } from "@/app/selector-rol";
 
 type Jugador = { id: string; nombre: string; rol: string };
@@ -10,14 +12,18 @@ type Stat = { goles: number; lesion: boolean; tarjeta: number };
 const nuevo = (): Stat => ({ goles: 0, lesion: false, tarjeta: 0 });
 
 export function ResultadoForm({
+  partidoId,
   equipoA,
   equipoB,
   cuando,
 }: {
+  partidoId: string;
   equipoA: Jugador[];
   equipoB: Jugador[];
   cuando: string;
 }) {
+  const supabase = createClient();
+  const router = useRouter();
   const [nombres] = useState({ A: "Primera", B: "Reserva" });
   const [sinAutor, setSinAutor] = useState({ A: 0, B: 0 });
   const [stats, setStats] = useState<Record<string, Stat>>(() => {
@@ -25,6 +31,9 @@ export function ResultadoForm({
     [...equipoA, ...equipoB].forEach((j) => (s[j.id] = nuevo()));
     return s;
   });
+  const [anecdota, setAnecdota] = useState("");
+  const [guardando, setGuardando] = useState(false);
+  const [error, setError] = useState("");
   const [toast, setToast] = useState(false);
 
   const clamp = (n: number) => Math.max(0, n);
@@ -229,6 +238,56 @@ export function ResultadoForm({
     setTimeout(() => setToast(false), 3000);
   }
 
+  // Snapshot del resultado que se guarda en partidos.resultado (jsonb) y que
+  // el muro usa para pintar el historial.
+  function snapshot() {
+    const goleadores = [...equipoA, ...equipoB]
+      .filter((j) => stats[j.id].goles > 0)
+      .map((j) => ({
+        nombre: j.nombre,
+        goles: stats[j.id].goles,
+        equipo: equipoA.includes(j) ? "A" : "B",
+      }));
+    const tarjetas = [...equipoA, ...equipoB]
+      .filter((j) => stats[j.id].tarjeta > 0)
+      .map((j) => ({ nombre: j.nombre, tarjeta: stats[j.id].tarjeta }));
+    const lesionados = [...equipoA, ...equipoB]
+      .filter((j) => stats[j.id].lesion)
+      .map((j) => j.nombre);
+    return {
+      marcador,
+      nombres,
+      goleadores,
+      sinAutor,
+      tarjetas,
+      lesionados,
+      anecdota: anecdota.trim() || null,
+    };
+  }
+
+  async function guardar() {
+    setGuardando(true);
+    setError("");
+    const { data, error } = await supabase
+      .from("partidos")
+      .update({ estado: "jugado", resultado: snapshot() })
+      .eq("id", partidoId)
+      .select("id");
+    if (error) {
+      setGuardando(false);
+      setError(error.message);
+      return;
+    }
+    if (!data || data.length === 0) {
+      setGuardando(false);
+      setError("No se pudo guardar (permisos). Fijate que seas del club.");
+      return;
+    }
+    // Al muro: el partido pasa al historial con el resultado cargado.
+    router.push("/dashboard");
+    router.refresh();
+  }
+
   return (
     <div className="space-y-4">
       {/* Marcador (calculado a partir de los goles cargados abajo) */}
@@ -245,12 +304,42 @@ export function ResultadoForm({
         <Columna eq="B" dot="🔴" jugadores={equipoB} />
       </div>
 
+      {/* Anécdota opcional: la frase que aparece en el historial del muro */}
+      <div>
+        <label className="mb-1 block text-xs font-semibold uppercase opacity-60">
+          ¿Qué pasó en la cancha? (opcional)
+        </label>
+        <input
+          type="text"
+          value={anecdota}
+          onChange={(e) => setAnecdota(e.target.value)}
+          maxLength={120}
+          placeholder="El Colo atajó un penal con la cara 🧤"
+          className="w-full rounded-lg border border-black/15 bg-white px-3 py-2 text-sm outline-none focus:border-verde-acento"
+        />
+      </div>
+
+      {error && (
+        <p className="rounded-lg bg-red-50 px-3 py-2 text-xs text-red-600">
+          {error}
+        </p>
+      )}
+
+      <button
+        type="button"
+        onClick={guardar}
+        disabled={guardando}
+        className="w-full rounded-lg bg-verde-acento py-3 font-semibold text-background transition-opacity hover:opacity-90 disabled:opacity-50"
+      >
+        {guardando ? "Guardando…" : "💾 Guardar el resultado"}
+      </button>
+
       <button
         type="button"
         onClick={copiar}
-        className="w-full rounded-lg bg-verde-acento py-3 font-medium text-background transition-opacity hover:opacity-90"
+        className="w-full rounded-lg border border-black/15 py-2.5 text-sm font-medium transition-colors hover:bg-black/5"
       >
-        📋 Copiar resumen del partido
+        📋 Copiar resumen
       </button>
 
       {toast && (
