@@ -17,18 +17,28 @@ export function SuspenderFecha({
   const router = useRouter();
   const [abierto, setAbierto] = useState(false);
   const [suspendiendo, setSuspendiendo] = useState(false);
+  const [error, setError] = useState("");
 
   async function suspender() {
     setSuspendiendo(true);
-    const { error } = await supabase
+    setError("");
+    const { data, error } = await supabase
       .from("partidos")
       .update({ estado: "suspendido" })
-      .eq("id", partidoId);
+      .eq("id", partidoId)
+      .select("id");
     setSuspendiendo(false);
-    if (!error) {
-      setAbierto(false);
-      router.refresh();
+    if (error) {
+      setError(error.message);
+      return;
     }
+    if (!data || data.length === 0) {
+      // Update sin filas afectadas: casi siempre RLS bloqueando el update.
+      setError("No se pudo suspender (permisos). Fijate que seas el creador.");
+      return;
+    }
+    setAbierto(false);
+    router.refresh();
   }
 
   return (
@@ -65,6 +75,11 @@ export function SuspenderFecha({
             <p className="mt-2 text-sm opacity-60">
               El partido se saca del muro. Después podés armar otra fecha.
             </p>
+            {error && (
+              <p className="mt-3 rounded-lg bg-red-50 px-3 py-2 text-xs text-red-600">
+                {error}
+              </p>
+            )}
             <div className="mt-4 grid grid-cols-2 gap-2">
               <button
                 onClick={() => setAbierto(false)}
