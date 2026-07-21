@@ -1,7 +1,7 @@
 "use client";
 
-import { useState } from "react";
-import { useRouter } from "next/navigation";
+import { Suspense, useState } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/client";
 import { SelectorRol } from "@/app/selector-rol";
@@ -9,8 +9,19 @@ import { SelectorRol } from "@/app/selector-rol";
 // Crear partido = crear club. El club nace con este partido; los que se
 // anoten por el link quedan asignados a él. El usuario no crea "grupos".
 export default function NuevoPartidoPage() {
+  return (
+    <Suspense fallback={null}>
+      <NuevoPartidoForm />
+    </Suspense>
+  );
+}
+
+function NuevoPartidoForm() {
   const supabase = createClient();
   const router = useRouter();
+  // Si viene ?club=<id>, el partido se arma en ese club existente.
+  // Si no, se crea un club nuevo (arranca desde cero).
+  const clubExistente = useSearchParams().get("club");
 
   const [fecha, setFecha] = useState("");
   const [hora, setHora] = useState("20:00");
@@ -34,30 +45,34 @@ export default function NuevoPartidoPage() {
       return;
     }
 
-    // 1) Club (grupo) — nombre por defecto, editable después
-    const nombreClub = lugar.trim() ? `Los de ${lugar.split(",")[0].trim()}` : "Mi club";
-    const { data: club, error: eClub } = await supabase
-      .from("grupos")
-      .insert({ nombre: nombreClub, creado_por: user.id })
-      .select("id")
-      .single();
-    if (eClub || !club) {
-      setError(eClub?.message ?? "No se pudo crear el club.");
-      setEnviando(false);
-      return;
-    }
+    // 1) Club: reusar el existente (armar otro partido) o crear uno nuevo.
+    let clubId = clubExistente;
+    if (!clubId) {
+      const nombreClub = lugar.trim() ? `Los de ${lugar.split(",")[0].trim()}` : "Mi club";
+      const { data: club, error: eClub } = await supabase
+        .from("grupos")
+        .insert({ nombre: nombreClub, creado_por: user.id })
+        .select("id")
+        .single();
+      if (eClub || !club) {
+        setError(eClub?.message ?? "No se pudo crear el club.");
+        setEnviando(false);
+        return;
+      }
+      clubId = club.id;
 
-    // 2) Membresía admin del creador
-    await supabase
-      .from("membresias")
-      .insert({ grupo_id: club.id, jugador_id: user.id, rol: "admin" });
+      // 2) Membresía admin del creador (solo si el club es nuevo)
+      await supabase
+        .from("membresias")
+        .insert({ grupo_id: clubId, jugador_id: user.id, rol: "admin" });
+    }
 
     // 3) Partido
     const cuando = new Date(`${fecha}T${hora}`).toISOString();
     const { data: partido, error: eP } = await supabase
       .from("partidos")
       .insert({
-        grupo_id: club.id,
+        grupo_id: clubId,
         fecha: cuando,
         cancha: lugar.trim() || null,
         minimo,

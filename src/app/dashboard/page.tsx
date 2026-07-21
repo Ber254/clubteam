@@ -163,12 +163,29 @@ export default async function DashboardPage() {
         </div>
       </div>
 
-      <Link
-        href="/partidos/nuevo"
-        className="block w-full rounded-lg bg-verde-acento py-3 text-center font-medium text-background transition-opacity hover:opacity-90"
-      >
-        + Crear partido
-      </Link>
+      {club ? (
+        <div className="grid gap-2" style={{ gridTemplateColumns: "3fr 1fr" }}>
+          <Link
+            href={`/partidos/nuevo?club=${club.id}`}
+            className="rounded-lg bg-verde-acento py-3 text-center font-medium text-background transition-opacity hover:opacity-90"
+          >
+            + Armar otro partido
+          </Link>
+          <Link
+            href="/partidos/nuevo"
+            className="flex items-center justify-center rounded-lg border border-black/15 px-1 py-2 text-center text-xs font-medium leading-tight transition-colors hover:bg-black/5"
+          >
+            ➕ Crear otro Club
+          </Link>
+        </div>
+      ) : (
+        <Link
+          href="/partidos/nuevo"
+          className="block w-full rounded-lg bg-verde-acento py-3 text-center font-medium text-background transition-opacity hover:opacity-90"
+        >
+          + Crear partido
+        </Link>
+      )}
     </main>
   );
 }
