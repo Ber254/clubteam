@@ -75,9 +75,12 @@ export default async function PartidoPage({
 
         <div className="rounded-md bg-[#fffdf5] p-4 shadow-inner">
           {seJuega && (
-            <div className="mt-4 rounded-xl bg-verde-acento p-4 text-center font-bold text-white shadow-md">
-              🎉 Plantel listo, a organizar los equipos
-            </div>
+            <Link
+              href={`/partidos/${id}/equipos`}
+              className="mt-4 block rounded-xl bg-verde-acento p-4 text-center font-bold text-white shadow-md transition-opacity hover:opacity-90"
+            >
+              🎉 Plantel listo → armar los equipos
+            </Link>
           )}
 
           <div className="mt-4">
