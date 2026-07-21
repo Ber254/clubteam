@@ -177,6 +177,7 @@ export function ArmarEquipos({
   const [nombres, setNombres] = useState<Nombres>({ A: "Primera", B: "Reserva" });
   const [banco, setBanco] = useState<J[]>([]);
   const [editando, setEditando] = useState<null | "A" | "B">(null);
+  const [confirmado, setConfirmado] = useState(false);
   const [toast, setToast] = useState(false);
 
   function mezclar() {
@@ -211,10 +212,11 @@ export function ArmarEquipos({
   }
 
   function copiar() {
-    const linea = (t: J[]) => t.map((p) => `• ${p.nombre}`).join("\n");
-    const txt = `⚽ Equipos para ${cuando}${lugar ? " en " + lugar : ""}\n\n🔵 ${nombres.A}\n${linea(
-      equipos.A
-    )}\n\n🔴 ${nombres.B}\n${linea(equipos.B)}\n\n¡Nos vemos en la cancha!`;
+    const txt = `⚽ Equipos confirmados — ${cuando}${lugar ? " en " + lugar : ""}\n🔵 ${
+      nombres.A
+    }: ${equipos.A.map((p) => p.nombre).join(", ")}\n🔴 ${nombres.B}: ${equipos.B
+      .map((p) => p.nombre)
+      .join(", ")}\n¡Nos vemos en la cancha!`;
     if (navigator.clipboard) navigator.clipboard.writeText(txt).catch(() => {});
     setToast(true);
     setTimeout(() => setToast(false), 3000);
@@ -245,21 +247,24 @@ export function ArmarEquipos({
           ) : (
             <button
               type="button"
-              onClick={() => setEditando(eq)}
-              title="Tocá para cambiar el nombre"
+              onClick={() => !confirmado && setEditando(eq)}
+              disabled={confirmado}
+              title={confirmado ? undefined : "Tocá para cambiar el nombre"}
               className="min-w-0 flex-1 truncate text-left text-sm font-bold"
             >
               {nombres[eq]} <span className="opacity-50">({arr.length})</span>
             </button>
           )}
-          <button
-            type="button"
-            onClick={sortearNombres}
-            title="Nombre al azar"
-            className="shrink-0 rounded-md border border-black/10 px-1.5 py-0.5 text-xs hover:bg-black/5"
-          >
-            ✏️
-          </button>
+          {!confirmado && (
+            <button
+              type="button"
+              onClick={sortearNombres}
+              title="Nombre al azar"
+              className="shrink-0 rounded-md border border-black/10 px-1.5 py-0.5 text-xs hover:bg-black/5"
+            >
+              ✏️
+            </button>
+          )}
         </div>
 
         <div className="space-y-1">
@@ -267,14 +272,16 @@ export function ArmarEquipos({
             <div key={p.id} className="flex items-center gap-1.5 rounded-md bg-black/[0.03] px-2 py-1.5 text-sm">
               <span aria-hidden="true">{ICON[p.rol] ?? "🔄"}</span>
               <span className="min-w-0 flex-1 truncate font-medium">{p.nombre}</span>
-              <button
-                type="button"
-                onClick={() => alBanco(eq, p)}
-                title="Mandar al banco"
-                className="shrink-0 rounded border border-black/10 bg-white px-1.5 py-0.5 text-xs hover:bg-black/5"
-              >
-                ↓ Banco
-              </button>
+              {!confirmado && (
+                <button
+                  type="button"
+                  onClick={() => alBanco(eq, p)}
+                  title="Mandar al banco"
+                  className="shrink-0 rounded border border-black/10 bg-white px-1.5 py-0.5 text-xs hover:bg-black/5"
+                >
+                  ↓ Banco
+                </button>
+              )}
             </div>
           ))}
           {arr.length === 0 && (
@@ -292,12 +299,14 @@ export function ArmarEquipos({
 
   return (
     <div>
-      <button
-        onClick={mezclar}
-        className="w-full rounded-lg bg-verde-acento py-3 font-medium text-background transition-opacity hover:opacity-90"
-      >
-        ⚖ Armado automático
-      </button>
+      {!confirmado && (
+        <button
+          onClick={mezclar}
+          className="w-full rounded-lg bg-verde-acento py-3 font-medium text-background transition-opacity hover:opacity-90"
+        >
+          ⚖ Armado automático
+        </button>
+      )}
 
       <div className="mt-3 grid grid-cols-2 gap-2">
         <Columna eq="A" dot="🔵" />
@@ -305,7 +314,7 @@ export function ArmarEquipos({
       </div>
 
       {/* Banco: jugadores sin equipo, listos para reasignar */}
-      {banco.length > 0 && (
+      {!confirmado && banco.length > 0 && (
         <div className="mt-3 rounded-xl border border-dashed border-black/25 bg-black/[0.02] p-3">
           <p className="mb-2 text-xs font-semibold uppercase opacity-60">
             🪑 Banco ({banco.length})
@@ -339,12 +348,45 @@ export function ArmarEquipos({
         </div>
       )}
 
-      <button
-        onClick={copiar}
-        className="mt-3 w-full rounded-lg border border-black/15 bg-white py-3 font-medium transition-colors hover:bg-black/5"
-      >
-        📋 Copiar equipos
-      </button>
+      {!confirmado ? (
+        <button
+          onClick={() => setConfirmado(true)}
+          disabled={equipos.A.length === 0 || equipos.B.length === 0}
+          className="mt-4 w-full rounded-lg bg-verde-acento py-3 font-semibold text-background transition-opacity hover:opacity-90 disabled:opacity-50"
+        >
+          ✅ Confirmar equipos
+        </button>
+      ) : (
+        <div className="mt-4">
+          <p className="mb-1 text-xs font-semibold uppercase opacity-60">
+            Mensaje para el grupo
+          </p>
+          {/* Burbuja estilo WhatsApp con la formación definida */}
+          <div className="rounded-xl rounded-tl-sm bg-[#dcf8c6] p-3 text-sm text-[#1b1b1b] shadow-sm">
+            <p className="font-semibold">⚽ Equipos confirmados</p>
+            <p className="mt-1">
+              🔵 <strong>{nombres.A}:</strong> {equipos.A.map((p) => p.nombre).join(", ")}
+            </p>
+            <p>
+              🔴 <strong>{nombres.B}:</strong> {equipos.B.map((p) => p.nombre).join(", ")}
+            </p>
+            <p className="mt-1">¡Nos vemos en la cancha!</p>
+          </div>
+
+          <button
+            onClick={copiar}
+            className="mt-3 w-full rounded-lg bg-verde-acento py-3 font-semibold text-background transition-opacity hover:opacity-90"
+          >
+            📋 Copiar mensaje
+          </button>
+          <button
+            onClick={() => setConfirmado(false)}
+            className="mt-2 w-full rounded-lg border border-black/15 bg-white py-2.5 text-sm font-medium transition-colors hover:bg-black/5"
+          >
+            ✏️ Editar equipos
+          </button>
+        </div>
+      )}
 
       {toast && (
         <div className="fixed inset-x-0 bottom-6 z-50 flex justify-center px-5">
