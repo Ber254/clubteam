@@ -5,14 +5,6 @@ import { formatFecha } from "@/lib/fechas";
 import { POSICIONES } from "@/lib/posiciones";
 import { ICONOS_ROL } from "@/app/selector-rol";
 import { BotonInvitar } from "./boton-invitar";
-import { MuroPrevia } from "./muro-previa";
-
-type ComentarioRow = {
-  id: string;
-  texto: string;
-  jugador_id: string;
-  jugadores: { nombre: string; apodo: string | null } | null;
-};
 
 type Anotado = {
   jugador_id: string;
@@ -54,21 +46,6 @@ export default async function PartidoPage({
     rol,
     gente: lista.filter((a) => (a.posicion_jugada ?? "Donde sea") === rol),
   })).filter((g) => g.gente.length > 0);
-
-  const { data: comentarios } = await supabase
-    .from("comentarios")
-    .select("id, texto, jugador_id, jugadores(nombre, apodo)")
-    .eq("partido_id", id)
-    .order("created_at", { ascending: true })
-    .returns<ComentarioRow[]>();
-
-  const previaInicial = (comentarios ?? []).map((c) => ({
-    id: c.id,
-    texto: c.texto,
-    jugador_id: c.jugador_id,
-    autor: c.jugadores?.apodo || c.jugadores?.nombre || "Jugador",
-    esOrg: c.jugador_id === partido.creado_por,
-  }));
 
   const link = `https://clubteam-two.vercel.app/partidos/${id}`;
   const mensaje = `No te cagues, vení al partido 😤\nJugamos ${formatFecha(partido.fecha)}${partido.cancha ? " en " + partido.cancha : ""}.\nAnotate y elegí tu puesto 👉 ${link}`;
@@ -150,11 +127,31 @@ export default async function PartidoPage({
             ))}
           </div>
 
-          <MuroPrevia
-            partidoId={partido.id}
-            creadoPor={partido.creado_por}
-            inicial={previaInicial}
-          />
+          {/* Garabatos manuscritos (planes de juego) al pie del portapapeles */}
+          <div className="doodles" aria-hidden="true">
+            <span className="doodle" style={{ fontSize: 26, transform: "rotate(-5deg)" }}>
+              2-3-1
+            </span>
+            <svg
+              width="60"
+              height="40"
+              viewBox="0 0 60 40"
+              fill="none"
+              stroke="#6f6f6f"
+              strokeWidth="1.5"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              style={{ transform: "rotate(-3deg)" }}
+            >
+              <circle cx="9" cy="30" r="4" />
+              <path d="M6 8 L14 16 M14 8 L6 16" />
+              <path d="M14 28 C 27 9, 40 34, 52 13" strokeDasharray="3 3" />
+              <path d="M52 13 l-6 1 m6 -1 l-1 -6" />
+            </svg>
+            <span className="doodle" style={{ fontSize: 18, transform: "rotate(2deg)" }}>
+              dale q se puede
+            </span>
+          </div>
         </div>
       </div>
     </main>
