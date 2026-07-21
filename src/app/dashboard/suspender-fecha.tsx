@@ -43,21 +43,25 @@ export function SuspenderFecha({
 
   return (
     <>
-      {/* Botón rojo en el borde derecho del televisor */}
+      {/* Botón rojo tipo etiqueta lateral del televisor */}
       <button
         type="button"
         onClick={() => setAbierto(true)}
         title="Suspender esta fecha"
-        className="absolute right-2 top-1/2 flex h-24 w-8 -translate-y-1/2 items-center justify-center rounded-md text-[10px] font-bold uppercase tracking-wide text-white transition-transform active:translate-y-[calc(-50%+1px)]"
+        className="flex h-24 w-8 items-center justify-center rounded-md text-white transition-transform active:translate-y-[1px]"
         style={{
           background: "linear-gradient(#e23b3b, #b5261f)",
           border: "1.5px solid #7d1712",
           boxShadow:
             "inset 0 1px 1px rgba(255,255,255,.35), 0 2px 4px rgba(0,0,0,.45)",
-          writingMode: "vertical-rl",
         }}
       >
-        Suspender fecha
+        <span
+          className="whitespace-nowrap text-[10px] font-bold uppercase tracking-wide"
+          style={{ transform: "rotate(-90deg)" }}
+        >
+          Suspender fecha
+        </span>
       </button>
 
       {/* Confirmación */}

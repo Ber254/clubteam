@@ -3,6 +3,7 @@ import { formatFecha } from "@/lib/fechas";
 import { TvAcciones } from "./tv-acciones";
 import { MuroPrevia } from "@/app/partidos/[id]/muro-previa";
 import { SuspenderFecha } from "./suspender-fecha";
+import { CargarResultado } from "./cargar-resultado";
 
 type Previa = {
   id: string;
@@ -36,6 +37,7 @@ export function TvMuro({
 }) {
   const faltan = Math.max(0, partido.minimo - cantidad);
   const seJuega = cantidad >= partido.minimo;
+  const yaPaso = new Date(partido.fecha).getTime() < Date.now();
   const etiqueta = formatFecha(partido.fecha) + (partido.cancha ? ` · ${partido.cancha}` : "");
 
   return (
@@ -46,9 +48,13 @@ export function TvMuro({
         boxShadow: "inset 0 0 0 3px rgba(255,255,255,.08), 0 10px 24px rgba(0,0,0,.3)",
       }}
     >
-      {puedeSuspender && (
-        <SuspenderFecha partidoId={partido.id} etiqueta={etiqueta} />
-      )}
+      {/* Etiquetas laterales del televisor: suspender (creador) + cargar resultado */}
+      <div className="absolute right-2 top-1/2 flex -translate-y-1/2 flex-col items-center gap-2">
+        {puedeSuspender && (
+          <SuspenderFecha partidoId={partido.id} etiqueta={etiqueta} />
+        )}
+        <CargarResultado partidoId={partido.id} yaPaso={yaPaso} />
+      </div>
 
       {/* Antena */}
       <svg
