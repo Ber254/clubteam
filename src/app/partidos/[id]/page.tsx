@@ -97,7 +97,7 @@ export default async function PartidoPage({
         />
 
         <div className="rounded-md bg-[#fffdf5] p-4 shadow-inner">
-          <BotonInvitar link={link} mensaje={mensaje} />
+          <BotonInvitar mensaje={mensaje} />
 
           {seJuega && (
             <div className="mt-4 rounded-xl bg-verde-acento p-4 text-center font-bold text-white shadow-md">

@@ -4,7 +4,7 @@ import { useState } from "react";
 
 // Botón destacado (estilo TV del muro) que copia el mensaje de invitación
 // y confirma con un toast de 3s, en vez de solo "copiar link".
-export function BotonInvitar({ link, mensaje }: { link: string; mensaje: string }) {
+export function BotonInvitar({ mensaje }: { mensaje: string }) {
   const [toast, setToast] = useState(false);
 
   async function copiar() {
@@ -26,9 +26,6 @@ export function BotonInvitar({ link, mensaje }: { link: string; mensaje: string 
       >
         📲 Invitá más gente !!
       </button>
-      <code className="mt-2 block truncate rounded-lg border border-black/15 bg-blanco-cancha px-3 py-2 text-xs">
-        {link}
-      </code>
 
       {toast && (
         <div className="fixed inset-x-0 bottom-6 z-50 flex justify-center px-5">
