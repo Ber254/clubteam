@@ -4,9 +4,10 @@ import { useState } from "react";
 import { ICONOS_ROL } from "@/app/selector-rol";
 
 type Jugador = { id: string; nombre: string; rol: string };
-type Stat = { goles: number; lesion: boolean; tarjeta: boolean };
+// tarjeta: 0 = sin tarjeta, 1 = amarilla, 2 = roja (ciclo con cada click)
+type Stat = { goles: number; lesion: boolean; tarjeta: number };
 
-const nuevo = (): Stat => ({ goles: 0, lesion: false, tarjeta: false });
+const nuevo = (): Stat => ({ goles: 0, lesion: false, tarjeta: 0 });
 
 export function ResultadoForm({
   equipoA,
@@ -112,6 +113,27 @@ export function ResultadoForm({
     );
   }
 
+  // Tarjeta: cicla sin tarjeta (grisado) → amarilla → roja → sin tarjeta
+  function Tarjeta({ id }: { id: string }) {
+    const t = stats[id].tarjeta;
+    const estilo =
+      t === 1
+        ? "border-yellow-400 bg-yellow-100"
+        : t === 2
+          ? "border-red-400 bg-red-100"
+          : "border-black/15 bg-white opacity-45 hover:opacity-80";
+    return (
+      <button
+        type="button"
+        onClick={() => setStat(id, { tarjeta: (t + 1) % 3 })}
+        title={t === 1 ? "Amarilla" : t === 2 ? "Roja" : "Sin tarjeta"}
+        className={`flex h-7 w-7 items-center justify-center rounded-md border text-sm transition-colors ${estilo}`}
+      >
+        {t === 2 ? "🟥" : "🟨"}
+      </button>
+    );
+  }
+
   function Fila({ j }: { j: Jugador }) {
     return (
       <div className="border-t border-black/10 px-2 py-2 first:border-t-0">
@@ -128,13 +150,7 @@ export function ResultadoForm({
           >
             🤕
           </Toggle>
-          <Toggle
-            on={stats[j.id].tarjeta}
-            onClick={() => setStat(j.id, { tarjeta: !stats[j.id].tarjeta })}
-            activo="border-sky-400 bg-sky-100"
-          >
-            🟦
-          </Toggle>
+          <Tarjeta id={j.id} />
         </div>
       </div>
     );
