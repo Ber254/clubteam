@@ -75,6 +75,11 @@ export function TrapoClub({
           "inset 0 0 0 2px rgba(255,255,255,.5), 0 5px 16px rgba(0,0,0,.18)",
       }}
     >
+      {/* 4 ojales/remaches en las esquinas, como el trapo del demo */}
+      <span className="ojal" style={{ top: 7, left: 9 }} />
+      <span className="ojal" style={{ top: 7, right: 9 }} />
+      <span className="ojal" style={{ bottom: 7, left: 9 }} />
+      <span className="ojal" style={{ bottom: 7, right: 9 }} />
       {nombreInicial}
     </button>
   );

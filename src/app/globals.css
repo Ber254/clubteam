@@ -183,3 +183,13 @@ body {
   opacity: 1;
   transform: translate(-50%, 0);
 }
+
+/* Ojal/remache de las esquinas del trapo del club */
+.ojal {
+  position: absolute;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #f2f2f2;
+  box-shadow: inset 0 0 0 1.5px rgba(0, 0, 0, 0.35);
+}
