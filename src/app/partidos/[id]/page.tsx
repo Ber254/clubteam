@@ -34,7 +34,7 @@ export default async function PartidoPage({
 
   const { data: partido } = await supabase
     .from("partidos")
-    .select("id, fecha, cancha, minimo, grupo_id, creado_por, estado, resultado")
+    .select("id, fecha, cancha, minimo, grupo_id, creado_por, estado, resultado, codigo_invitacion")
     .eq("id", id)
     .single();
   if (!partido) notFound();
@@ -155,16 +155,12 @@ export default async function PartidoPage({
     gente: lista.filter((a) => (a.posicion_jugada ?? "Donde sea") === rol),
   })).filter((g) => g.gente.length > 0);
 
-  // El link de invitación va por /join/[codigo]: así un usuario que NO es
-  // miembro puede loguearse y unirse (entrar directo a /partidos/[id] le daría
-  // 404 porque RLS no lo deja ver el partido todavía).
-  const { data: grupo } = await supabase
-    .from("grupos")
-    .select("codigo_invitacion")
-    .eq("id", partido.grupo_id)
-    .single();
-  const link = grupo?.codigo_invitacion
-    ? `https://clubteam-two.vercel.app/join/${grupo.codigo_invitacion}`
+  // El link de invitación va por /anotarse/[codigo del PARTIDO]: el invitado
+  // se loguea, elige rol + apodo y queda anotado a ESTA fecha (y sumado al
+  // club). Entrar directo a /partidos/[id] le daría 404 (RLS no lo deja ver
+  // el partido si todavía no es miembro).
+  const link = partido.codigo_invitacion
+    ? `https://clubteam-two.vercel.app/anotarse/${partido.codigo_invitacion}`
     : `https://clubteam-two.vercel.app/partidos/${id}`;
   const mensaje = `No te cagues, vení al partido 😤\nJugamos ${formatFecha(partido.fecha)}${partido.cancha ? " en " + partido.cancha : ""}.\nAnotate y elegí tu puesto 👉 ${link}`;
 

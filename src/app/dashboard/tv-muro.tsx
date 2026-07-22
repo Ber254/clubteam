@@ -26,13 +26,11 @@ type Partido = {
 // de uno (el que se organiza arriba, el siguiente debajo).
 export function TvMuro({
   partido,
-  codigoClub,
   cantidad,
   previaInicial,
   puedeSuspender,
 }: {
   partido: Partido;
-  codigoClub: string;
   cantidad: number;
   previaInicial: Previa[];
   puedeSuspender: boolean;
@@ -105,7 +103,7 @@ export function TvMuro({
 
         <TvAcciones
           partidoId={partido.id}
-          codigo={codigoClub}
+          codigo={partido.codigo_invitacion}
           cuando={formatFecha(partido.fecha)}
           lugar={partido.cancha}
         />
