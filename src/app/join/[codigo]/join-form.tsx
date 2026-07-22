@@ -52,7 +52,8 @@ export function JoinForm({
       return;
     }
 
-    router.push(`/grupos/${grupoId}`);
+    // Al muro nuevo (TV del club), no a la UI vieja de grupo.
+    router.push("/dashboard");
   }
 
   return (

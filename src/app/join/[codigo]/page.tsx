@@ -54,9 +54,9 @@ export default async function JoinPage({
     );
   }
 
-  // Ya es miembro: directo a la home del grupo.
+  // Ya es miembro: directo al muro (TV del club).
   if (grupo.ya_es_miembro) {
-    redirect(`/grupos/${grupo.id}`);
+    redirect("/dashboard");
   }
 
   // Prellenamos el nombre con el del perfil (viene del trigger de signup).
