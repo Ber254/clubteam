@@ -68,14 +68,11 @@ export default async function DashboardPage() {
 
   const planificados = partidos ?? [];
 
-  // Fechas "vigentes" (todavía no vencieron): son las que ocupan lugar.
-  // Se permiten como mucho 2; para armar otra hay que suspender la vieja
-  // o esperar a que venza por fecha/horario.
-  const ahora = Date.now();
-  const vigentes = planificados.filter(
-    (p) => new Date(p.fecha).getTime() >= ahora
-  );
-  const puedeCrear = vigentes.length < 2;
+  // El muro admite como mucho 2 fechas (los TVs). Un partido ocupa lugar
+  // hasta que se RESUELVE: se le carga el resultado (pasa a 'jugado') o se
+  // suspende. Que la fecha ya haya vencido NO libera el cupo: un partido
+  // jugado sin resultado cargado sigue ocupando su TV.
+  const puedeCrear = planificados.length < 2;
 
   // Datos de cada TV: anotados + previa (comentarios) por partido.
   const tvs = await Promise.all(
@@ -300,8 +297,8 @@ export default async function DashboardPage() {
             </Link>
           ) : (
             <div className="rounded-lg border border-dashed border-black/20 px-3 py-2.5 text-center text-xs leading-tight opacity-70">
-              Ya tenés 2 fechas armadas. Suspendé la más vieja (perilla de la
-              tele) para armar otra.
+              Ya tenés 2 fechas en el muro. Cargá el resultado de una que ya se
+              jugó (o suspendela) para armar otra.
             </div>
           )}
           <Link
