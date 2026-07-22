@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { createPortal } from "react-dom";
 import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
 
@@ -59,45 +60,49 @@ export function SuspenderFecha({
         Suspender fecha
       </button>
 
-      {/* Confirmación */}
-      {abierto && (
-        <div
-          className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-5"
-          onClick={() => setAbierto(false)}
-        >
+      {/* Confirmación: se renderiza en document.body (portal) para escapar
+          del stack con transform del TV, que si no atrapa el position:fixed
+          y deja el modal apretado en la franja de la derecha. */}
+      {abierto &&
+        createPortal(
           <div
-            className="w-full max-w-sm rounded-2xl bg-white p-5 shadow-xl"
-            onClick={(e) => e.stopPropagation()}
+            className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-5"
+            onClick={() => setAbierto(false)}
           >
-            <h2 className="text-lg font-bold">¿Suspender esta fecha?</h2>
-            <p className="mt-1 text-sm opacity-70">{etiqueta}</p>
-            <p className="mt-2 text-sm opacity-60">
-              El partido se saca del muro. Después podés armar otra fecha.
-            </p>
-            {error && (
-              <p className="mt-3 rounded-lg bg-red-50 px-3 py-2 text-xs text-red-600">
-                {error}
+            <div
+              className="w-full max-w-sm rounded-2xl bg-white p-5 shadow-xl"
+              onClick={(e) => e.stopPropagation()}
+            >
+              <h2 className="text-lg font-bold">¿Suspender esta fecha?</h2>
+              <p className="mt-1 text-sm opacity-70">{etiqueta}</p>
+              <p className="mt-2 text-sm opacity-60">
+                El partido se saca del muro. Después podés armar otra fecha.
               </p>
-            )}
-            <div className="mt-4 grid grid-cols-2 gap-2">
-              <button
-                onClick={() => setAbierto(false)}
-                disabled={suspendiendo}
-                className="rounded-lg border border-black/15 py-2.5 text-sm font-medium transition-colors hover:bg-black/5 disabled:opacity-50"
-              >
-                Cancelar
-              </button>
-              <button
-                onClick={suspender}
-                disabled={suspendiendo}
-                className="rounded-lg bg-red-500 py-2.5 text-sm font-medium text-white transition-opacity hover:opacity-90 disabled:opacity-50"
-              >
-                {suspendiendo ? "Suspendiendo…" : "Suspender"}
-              </button>
+              {error && (
+                <p className="mt-3 rounded-lg bg-red-50 px-3 py-2 text-xs text-red-600">
+                  {error}
+                </p>
+              )}
+              <div className="mt-4 grid grid-cols-2 gap-2">
+                <button
+                  onClick={() => setAbierto(false)}
+                  disabled={suspendiendo}
+                  className="rounded-lg border border-black/15 py-2.5 text-sm font-medium transition-colors hover:bg-black/5 disabled:opacity-50"
+                >
+                  Cancelar
+                </button>
+                <button
+                  onClick={suspender}
+                  disabled={suspendiendo}
+                  className="rounded-lg bg-red-500 py-2.5 text-sm font-medium text-white transition-opacity hover:opacity-90 disabled:opacity-50"
+                >
+                  {suspendiendo ? "Suspendiendo…" : "Suspender"}
+                </button>
+              </div>
             </div>
-          </div>
-        </div>
-      )}
+          </div>,
+          document.body
+        )}
     </>
   );
 }
