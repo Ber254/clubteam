@@ -37,9 +37,27 @@ export function TrapoClub({
     else setValor(nombreInicial);
   }
 
+  // Tela blanca un poco arrugada: pliegues suaves + sombras de esquina.
+  const tela = {
+    backgroundColor: "#f6f4ee",
+    backgroundImage: [
+      "radial-gradient(120% 85% at 18% 8%, rgba(255,255,255,.95), transparent 60%)",
+      "radial-gradient(110% 75% at 88% 92%, rgba(0,0,0,.06), transparent 55%)",
+      "linear-gradient(100deg, rgba(0,0,0,.05) 0 5%, transparent 12% 88%, rgba(0,0,0,.07) 100%)",
+      "repeating-linear-gradient(112deg, rgba(0,0,0,.022) 0 3px, transparent 3px 34px)",
+      "repeating-linear-gradient(26deg, rgba(0,0,0,.016) 0 2px, transparent 2px 42px)",
+    ].join(","),
+    borderRadius: "3px",
+    boxShadow: "0 8px 22px rgba(0,0,0,.18)",
+    transform: "rotate(-1.5deg)",
+  } as const;
+
   if (editando) {
     return (
-      <div className="mx-auto flex max-w-[280px] items-center gap-2">
+      <div
+        className="mx-auto inline-block px-6 py-4"
+        style={tela}
+      >
         <input
           autoFocus
           value={valor}
@@ -53,7 +71,7 @@ export function TrapoClub({
             }
           }}
           onBlur={guardar}
-          className="min-w-0 flex-1 rounded-lg border border-verde-acento px-3 py-2 text-center text-lg font-bold outline-none"
+          className="font-trapo w-[260px] max-w-full border-b-2 border-black/30 bg-transparent px-1 py-1 text-center text-2xl uppercase leading-tight text-[#1a1a1a] outline-none"
         />
       </div>
     );
@@ -67,19 +85,14 @@ export function TrapoClub({
       }}
       title={clubId ? "Tocá para cambiarle el nombre" : "Se define al crear tu primer partido"}
       disabled={guardando}
-      className="relative inline-block cursor-pointer px-8 py-4 text-lg font-extrabold uppercase tracking-wider text-white transition-transform hover:scale-[1.03] disabled:opacity-70"
-      style={{
-        background: "var(--color-verde-acento)",
-        transform: "rotate(-1.2deg)",
-        boxShadow:
-          "inset 0 0 0 2px rgba(255,255,255,.5), 0 5px 16px rgba(0,0,0,.18)",
-      }}
+      className="font-trapo relative inline-block max-w-[320px] cursor-pointer px-10 py-6 text-3xl uppercase leading-[1.05] text-[#1a1a1a] transition-transform hover:scale-[1.02] disabled:opacity-70"
+      style={{ ...tela, textShadow: "0 0 1px rgba(0,0,0,.22)" }}
     >
-      {/* 4 ojales/remaches en las esquinas, como el trapo del demo */}
-      <span className="ojal" style={{ top: 7, left: 9 }} />
-      <span className="ojal" style={{ top: 7, right: 9 }} />
-      <span className="ojal" style={{ bottom: 7, left: 9 }} />
-      <span className="ojal" style={{ bottom: 7, right: 9 }} />
+      {/* 4 ojales/remaches en las esquinas del trapo */}
+      <span className="ojal" style={{ top: 8, left: 10 }} />
+      <span className="ojal" style={{ top: 8, right: 10 }} />
+      <span className="ojal" style={{ bottom: 8, left: 10 }} />
+      <span className="ojal" style={{ bottom: 8, right: 10 }} />
       {nombreInicial}
     </button>
   );
