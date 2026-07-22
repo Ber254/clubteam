@@ -37,28 +37,32 @@ export function TrapoClub({
     else setValor(nombreInicial);
   }
 
-  // Tela blanca un poco arrugada: pliegues suaves + sombras de esquina.
-  const tela = {
-    backgroundColor: "#f6f4ee",
+  // Tela ondeando: bandas verticales de luz y sombra (las "ondas") + una
+  // caída de luz general (más iluminado arriba, como la foto de referencia).
+  const telaBg = {
+    backgroundColor: "#f3f1ea",
     backgroundImage: [
-      "radial-gradient(120% 85% at 18% 8%, rgba(255,255,255,.95), transparent 60%)",
-      "radial-gradient(110% 75% at 88% 92%, rgba(0,0,0,.06), transparent 55%)",
-      "linear-gradient(100deg, rgba(0,0,0,.05) 0 5%, transparent 12% 88%, rgba(0,0,0,.07) 100%)",
-      "repeating-linear-gradient(112deg, rgba(0,0,0,.03) 0 2px, transparent 2px 26px)",
-      "repeating-linear-gradient(26deg, rgba(0,0,0,.022) 0 2px, transparent 2px 34px)",
-      "repeating-linear-gradient(70deg, rgba(0,0,0,.014) 0 1px, transparent 1px 18px)",
+      "linear-gradient(99deg, rgba(0,0,0,.14) 0%, rgba(0,0,0,0) 7%, rgba(255,255,255,.65) 14%, rgba(0,0,0,0) 22%, rgba(0,0,0,.12) 31%, rgba(0,0,0,0) 40%, rgba(255,255,255,.6) 50%, rgba(0,0,0,0) 59%, rgba(0,0,0,.13) 69%, rgba(0,0,0,0) 78%, rgba(255,255,255,.55) 88%, rgba(0,0,0,.10) 100%)",
+      "radial-gradient(150% 110% at 32% -10%, rgba(255,255,255,.75), transparent 55%)",
+      "radial-gradient(130% 100% at 92% 110%, rgba(0,0,0,.14), transparent 55%)",
+      "repeating-linear-gradient(99deg, rgba(0,0,0,.018) 0 2px, transparent 2px 20px)",
     ].join(","),
-    // Bordes curvos y algo irregulares, como una tela colgada.
-    borderRadius: "22px 16px 26px 14px / 16px 24px 14px 22px",
-    boxShadow: "0 8px 22px rgba(0,0,0,.18)",
-    transform: "rotate(-1.5deg)",
   } as const;
+
+  // Silueta de bandera colgada: el borde superior hace panza entre las dos
+  // puntas y el inferior queda ondulado, como género al viento.
+  const siluetaColgada =
+    "polygon(0% 4%, 12% 7%, 25% 9%, 38% 10%, 50% 11%, 62% 10%, 75% 9%, 88% 7%, 100% 4%, 100% 86%, 89% 94%, 78% 88%, 66% 96%, 55% 89%, 44% 97%, 33% 89%, 22% 95%, 11% 89%, 0% 86%)";
 
   if (editando) {
     return (
       <div
-        className="mx-auto inline-block px-6 py-4"
-        style={tela}
+        className="mx-auto inline-block px-7 py-5"
+        style={{
+          ...telaBg,
+          clipPath: siluetaColgada,
+          transform: "rotate(-1.5deg)",
+        }}
       >
         <input
           autoFocus
@@ -79,18 +83,44 @@ export function TrapoClub({
     );
   }
 
+  // Sujeción (nudo) que aguanta cada punta superior de la bandera.
+  const nudo = {
+    position: "absolute" as const,
+    top: -5,
+    width: 13,
+    height: 13,
+    borderRadius: "50%",
+    background: "radial-gradient(circle at 34% 30%, #9a9a9a, #4a4a4a 70%)",
+    boxShadow: "0 1px 2px rgba(0,0,0,.45)",
+    zIndex: 1,
+  };
+
   return (
-    <button
-      type="button"
-      onClick={() => {
-        if (clubId) setEditando(true);
-      }}
-      title={clubId ? "Tocá para cambiarle el nombre" : "Se define al crear tu primer partido"}
-      disabled={guardando}
-      className="font-trapo relative inline-block max-w-[320px] cursor-pointer px-10 py-6 text-3xl uppercase leading-[1.05] text-[#1a1a1a] transition-transform hover:scale-[1.02] disabled:opacity-70"
-      style={{ ...tela, textShadow: "0 0 1px rgba(0,0,0,.22)" }}
+    <div
+      className="relative inline-block"
+      style={{ transform: "rotate(-1.5deg)" }}
     >
-      {nombreInicial}
-    </button>
+      {/* Dos sujeciones en las puntas superiores */}
+      <span style={{ ...nudo, left: 4 }} aria-hidden="true" />
+      <span style={{ ...nudo, right: 4 }} aria-hidden="true" />
+
+      <button
+        type="button"
+        onClick={() => {
+          if (clubId) setEditando(true);
+        }}
+        title={clubId ? "Tocá para cambiarle el nombre" : "Se define al crear tu primer partido"}
+        disabled={guardando}
+        className="font-trapo block max-w-[320px] cursor-pointer px-11 pb-9 pt-8 text-3xl uppercase leading-[1.05] text-[#1a1a1a] transition-transform hover:scale-[1.015] disabled:opacity-70"
+        style={{
+          ...telaBg,
+          clipPath: siluetaColgada,
+          filter: "drop-shadow(0 9px 12px rgba(0,0,0,.22))",
+          textShadow: "0 0 1px rgba(0,0,0,.22)",
+        }}
+      >
+        {nombreInicial}
+      </button>
+    </div>
   );
 }
