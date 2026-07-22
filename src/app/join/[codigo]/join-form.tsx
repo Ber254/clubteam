@@ -4,6 +4,7 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
 import { POSICIONES } from "@/lib/posiciones";
+import { SelectorRol } from "@/app/selector-rol";
 
 const selectClases =
   "w-full rounded-lg border border-black/15 bg-blanco-cancha px-4 py-3 text-base outline-none focus:border-verde-acento dark:border-white/20 dark:focus:border-white/50 dark:[&>option]:bg-neutral-900";
@@ -73,25 +74,15 @@ export function JoinForm({
       </div>
 
       <div className="space-y-1">
-        <label htmlFor="posicion" className="text-sm font-medium">
-          Posición preferida
-        </label>
-        <select
-          id="posicion"
-          required
+        <p className="text-sm font-medium">Elegí tu posición</p>
+        <SelectorRol
           value={posicion}
-          onChange={(e) => setPosicion(e.target.value)}
-          className={selectClases}
-        >
-          <option value="" disabled>
-            Elegí tu posición
-          </option>
-          {POSICIONES.map((p) => (
-            <option key={p} value={p}>
-              {p}
-            </option>
-          ))}
-        </select>
+          onChange={(rol) => {
+            setPosicion(rol);
+            // Si la secundaria queda igual a la nueva preferida, se limpia.
+            if (posicionSecundaria === rol) setPosicionSecundaria("");
+          }}
+        />
       </div>
 
       <div className="space-y-1">
