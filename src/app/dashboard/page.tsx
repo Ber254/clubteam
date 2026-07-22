@@ -6,7 +6,7 @@ import { TrapoClub } from "./trapo-club";
 import { OnboardingModal } from "./onboarding-modal";
 import { TvMuro } from "./tv-muro";
 
-type ClubRow = { id: string; nombre: string } | null;
+type ClubRow = { id: string; nombre: string; codigo_invitacion: string } | null;
 type Resultado = {
   marcador: { A: number; B: number };
   nombres: { A: string; B: string };
@@ -47,7 +47,7 @@ export default async function DashboardPage() {
   // ¿Ya pertenece a algún club?
   const { data: membresias } = await supabase
     .from("membresias")
-    .select("grupo_id, grupos(id, nombre)")
+    .select("grupo_id, grupos(id, nombre, codigo_invitacion)")
     .eq("jugador_id", user.id)
     .order("fecha_ingreso", { ascending: false })
     .limit(1)
@@ -154,6 +154,7 @@ export default async function DashboardPage() {
           <TvMuro
             key={tv.partido.id}
             partido={tv.partido}
+            codigoClub={club?.codigo_invitacion ?? ""}
             cantidad={tv.cantidad}
             previaInicial={tv.previaInicial}
             puedeSuspender={tv.puedeSuspender}
