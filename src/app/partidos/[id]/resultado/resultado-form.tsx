@@ -254,9 +254,18 @@ export function ResultadoForm({
     const lesionados = [...equipoA, ...equipoB]
       .filter((j) => stats[j.id].lesion)
       .map((j) => j.nombre);
+    // Rosters completos por equipo (con su detalle) para el resumen del partido.
+    const roster = (js: Jugador[]) =>
+      js.map((j) => ({
+        nombre: j.nombre,
+        goles: stats[j.id].goles,
+        tarjeta: stats[j.id].tarjeta,
+        lesion: stats[j.id].lesion,
+      }));
     return {
       marcador,
       nombres,
+      equipos: { A: roster(equipoA), B: roster(equipoB) },
       goleadores,
       sinAutor,
       tarjetas,

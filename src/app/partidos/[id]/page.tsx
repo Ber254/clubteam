@@ -5,11 +5,18 @@ import { formatFecha } from "@/lib/fechas";
 import { POSICIONES } from "@/lib/posiciones";
 import { ICONOS_ROL } from "@/app/selector-rol";
 import { BotonInvitar } from "./boton-invitar";
+import { ResumenPartido } from "./resumen-partido";
 
 type Anotado = {
   jugador_id: string;
   posicion_jugada: string | null;
   jugadores: { nombre: string } | null;
+};
+type ComentarioRow = {
+  id: string;
+  texto: string;
+  jugador_id: string;
+  jugadores: { nombre: string; apodo: string | null } | null;
 };
 
 export default async function PartidoPage({
@@ -27,10 +34,111 @@ export default async function PartidoPage({
 
   const { data: partido } = await supabase
     .from("partidos")
-    .select("id, fecha, cancha, minimo, grupo_id, creado_por")
+    .select("id, fecha, cancha, minimo, grupo_id, creado_por, estado, resultado")
     .eq("id", id)
     .single();
   if (!partido) notFound();
+
+  // Partido ya jugado: se muestra el resumen (marcador, equipos, comentarios),
+  // NO el flujo de convocatoria/armado (ese partido ya pasó).
+  if (partido.estado === "jugado" && partido.resultado) {
+    const { data: coments } = await supabase
+      .from("comentarios")
+      .select("id, texto, jugador_id, jugadores(nombre, apodo)")
+      .eq("partido_id", id)
+      .order("created_at", { ascending: true })
+      .returns<ComentarioRow[]>();
+
+    const comentarios = (coments ?? []).map((c) => ({
+      id: c.id,
+      texto: c.texto,
+      autor: c.jugadores?.apodo || c.jugadores?.nombre || "Jugador",
+      esOrg: c.jugador_id === partido.creado_por,
+    }));
+
+    // Resultados viejos no tienen los rosters en el snapshot: se reconstruyen
+    // partiendo los anotados en dos (igual que hace la carga de resultado).
+    const r = partido.resultado as {
+      equipos?: unknown;
+      [k: string]: unknown;
+    };
+    let resultadoFinal = partido.resultado;
+    if (!r.equipos) {
+      const { data: anot } = await supabase
+        .from("participaciones")
+        .select("jugador_id, jugadores(nombre)")
+        .eq("partido_id", id)
+        .returns<Anotado[]>();
+      const noms = (anot ?? []).map(
+        (a, i) => a.jugadores?.nombre ?? `Jugador ${i + 1}`
+      );
+      const mitad = Math.ceil(noms.length / 2);
+      const mk = (arr: string[]) =>
+        arr.map((n) => ({ nombre: n, goles: 0, tarjeta: 0, lesion: false }));
+      resultadoFinal = {
+        ...r,
+        equipos: { A: mk(noms.slice(0, mitad)), B: mk(noms.slice(mitad)) },
+      };
+    }
+
+    return (
+      <main className="mx-auto w-full max-w-md flex-1 space-y-4 p-5">
+        <Link href="/dashboard" className="text-sm opacity-60 hover:opacity-100">
+          ← Volver al muro
+        </Link>
+
+        {/* Tablilla del DT: portapapeles de madera + hoja */}
+        <div
+          className="relative rounded-2xl p-4 pb-5"
+          style={{
+            background:
+              "repeating-linear-gradient(91deg, #9c6b3f 0 7px, #a9764a 7px 15px, #915f36 15px 22px)",
+            boxShadow:
+              "0 6px 18px rgba(0,0,0,.28), inset 0 0 0 1px rgba(0,0,0,.15)",
+          }}
+        >
+          <div
+            className="absolute left-1/2 -top-2 h-6 w-20 -translate-x-1/2 rounded-b-sm rounded-t-md border border-[#8a9096]"
+            style={{
+              background: "linear-gradient(#fdfdfd, #c9ccd1 55%, #9aa0a6)",
+              boxShadow: "0 2px 5px rgba(0,0,0,.35)",
+            }}
+          />
+
+          <div className="rounded-md bg-[#fffdf5] p-4 shadow-inner">
+            <ResumenPartido
+              fecha={partido.fecha}
+              resultado={resultadoFinal}
+              comentarios={comentarios}
+            />
+
+            {/* Garabatos de DT del cierre (distintos a los de las otras hojas) */}
+            <div className="doodles" aria-hidden="true">
+              <span className="doodle" style={{ fontSize: 22, transform: "rotate(-5deg)" }}>
+                3 puntos 🏆
+              </span>
+              <svg
+                width="52"
+                height="40"
+                viewBox="0 0 52 40"
+                fill="none"
+                stroke="#6f6f6f"
+                strokeWidth="1.5"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                style={{ transform: "rotate(3deg)" }}
+              >
+                <path d="M26 6 l4.7 9.5 10.5 1.5 -7.6 7.4 1.8 10.4 -9.4 -4.9 -9.4 4.9 1.8 -10.4 -7.6 -7.4 10.5 -1.5 z" />
+              </svg>
+              <span className="doodle" style={{ fontSize: 18, transform: "rotate(2deg)" }}>
+                a lo hecho pecho
+              </span>
+            </div>
+          </div>
+        </div>
+      </main>
+    );
+  }
 
   const { data: anotados } = await supabase
     .from("participaciones")
