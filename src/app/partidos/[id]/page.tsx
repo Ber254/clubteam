@@ -155,7 +155,17 @@ export default async function PartidoPage({
     gente: lista.filter((a) => (a.posicion_jugada ?? "Donde sea") === rol),
   })).filter((g) => g.gente.length > 0);
 
-  const link = `https://clubteam-two.vercel.app/partidos/${id}`;
+  // El link de invitación va por /join/[codigo]: así un usuario que NO es
+  // miembro puede loguearse y unirse (entrar directo a /partidos/[id] le daría
+  // 404 porque RLS no lo deja ver el partido todavía).
+  const { data: grupo } = await supabase
+    .from("grupos")
+    .select("codigo_invitacion")
+    .eq("id", partido.grupo_id)
+    .single();
+  const link = grupo?.codigo_invitacion
+    ? `https://clubteam-two.vercel.app/join/${grupo.codigo_invitacion}`
+    : `https://clubteam-two.vercel.app/partidos/${id}`;
   const mensaje = `No te cagues, vení al partido 😤\nJugamos ${formatFecha(partido.fecha)}${partido.cancha ? " en " + partido.cancha : ""}.\nAnotate y elegí tu puesto 👉 ${link}`;
 
   return (

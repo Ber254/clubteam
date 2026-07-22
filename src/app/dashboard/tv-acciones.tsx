@@ -29,8 +29,8 @@ export function TvAcciones({
   function invitar() {
     const link =
       typeof window !== "undefined"
-        ? `${window.location.origin}/p/${codigo}`
-        : `/p/${codigo}`;
+        ? `${window.location.origin}/join/${codigo}`
+        : `/join/${codigo}`;
     const arenga = ARENGAS[Math.floor(Math.random() * ARENGAS.length)];
     const txt = `${arenga}\nJugamos ${cuando}${lugar ? " en " + lugar : ""}.\nAnotate y elegí tu puesto 👉 ${link}`;
     if (navigator.clipboard) navigator.clipboard.writeText(txt).catch(() => {});
