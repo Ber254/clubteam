@@ -26,7 +26,7 @@ function NuevoPartidoForm() {
   const [fecha, setFecha] = useState("");
   const [hora, setHora] = useState("20:00");
   const [lugar, setLugar] = useState("");
-  const [minimo, setMinimo] = useState(10);
+  const [minimo, setMinimo] = useState(2);
   const [juega, setJuega] = useState(true);
   const [rol, setRol] = useState("Donde sea");
   const [enviando, setEnviando] = useState(false);
@@ -149,7 +149,7 @@ function NuevoPartidoForm() {
           <div className="flex items-center gap-3">
             <button
               type="button"
-              onClick={() => setMinimo((m) => Math.max(4, m - 2))}
+              onClick={() => setMinimo((m) => Math.max(2, m - 2))}
               className="size-11 rounded-lg border border-black/15 text-xl font-semibold"
             >
               −
