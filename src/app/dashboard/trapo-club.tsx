@@ -44,10 +44,12 @@ export function TrapoClub({
       "radial-gradient(120% 85% at 18% 8%, rgba(255,255,255,.95), transparent 60%)",
       "radial-gradient(110% 75% at 88% 92%, rgba(0,0,0,.06), transparent 55%)",
       "linear-gradient(100deg, rgba(0,0,0,.05) 0 5%, transparent 12% 88%, rgba(0,0,0,.07) 100%)",
-      "repeating-linear-gradient(112deg, rgba(0,0,0,.022) 0 3px, transparent 3px 34px)",
-      "repeating-linear-gradient(26deg, rgba(0,0,0,.016) 0 2px, transparent 2px 42px)",
+      "repeating-linear-gradient(112deg, rgba(0,0,0,.03) 0 2px, transparent 2px 26px)",
+      "repeating-linear-gradient(26deg, rgba(0,0,0,.022) 0 2px, transparent 2px 34px)",
+      "repeating-linear-gradient(70deg, rgba(0,0,0,.014) 0 1px, transparent 1px 18px)",
     ].join(","),
-    borderRadius: "3px",
+    // Bordes curvos y algo irregulares, como una tela colgada.
+    borderRadius: "22px 16px 26px 14px / 16px 24px 14px 22px",
     boxShadow: "0 8px 22px rgba(0,0,0,.18)",
     transform: "rotate(-1.5deg)",
   } as const;
@@ -88,11 +90,6 @@ export function TrapoClub({
       className="font-trapo relative inline-block max-w-[320px] cursor-pointer px-10 py-6 text-3xl uppercase leading-[1.05] text-[#1a1a1a] transition-transform hover:scale-[1.02] disabled:opacity-70"
       style={{ ...tela, textShadow: "0 0 1px rgba(0,0,0,.22)" }}
     >
-      {/* 4 ojales/remaches en las esquinas del trapo */}
-      <span className="ojal" style={{ top: 8, left: 10 }} />
-      <span className="ojal" style={{ top: 8, right: 10 }} />
-      <span className="ojal" style={{ bottom: 8, left: 10 }} />
-      <span className="ojal" style={{ bottom: 8, right: 10 }} />
       {nombreInicial}
     </button>
   );

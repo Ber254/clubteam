@@ -201,6 +201,38 @@ export default async function DashboardPage() {
         </div>
       )}
 
+      {/* Crear/armar partido: justo debajo de los TVs, antes del historial */}
+      {!club ? (
+        <Link
+          href="/partidos/nuevo"
+          className="block w-full rounded-lg bg-verde-acento py-3 text-center font-medium text-background transition-opacity hover:opacity-90"
+        >
+          + Crear partido
+        </Link>
+      ) : (
+        <div className="grid gap-2" style={{ gridTemplateColumns: "3fr 1fr" }}>
+          {puedeCrear ? (
+            <Link
+              href={`/partidos/nuevo?club=${club.id}`}
+              className="rounded-lg bg-verde-acento py-3 text-center font-medium text-background transition-opacity hover:opacity-90"
+            >
+              + Armar otro partido
+            </Link>
+          ) : (
+            <div className="rounded-lg border border-dashed border-black/20 px-3 py-2.5 text-center text-xs leading-tight opacity-70">
+              Ya tenés 2 fechas en el muro. Cargá el resultado de una que ya se
+              jugó (o suspendela) para armar otra.
+            </div>
+          )}
+          <Link
+            href="/partidos/nuevo"
+            className="flex items-center justify-center rounded-lg border border-black/15 px-1 py-2 text-center text-xs font-medium leading-tight transition-colors hover:bg-black/5"
+          >
+            ➕ Crear otro Club
+          </Link>
+        </div>
+      )}
+
       {/* Historial: fechas suspendidas o ya jugadas */}
       {historial.length > 0 && (
         <div className="space-y-2">
@@ -276,37 +308,6 @@ export default async function DashboardPage() {
               </Link>
             );
           })}
-        </div>
-      )}
-
-      {!club ? (
-        <Link
-          href="/partidos/nuevo"
-          className="block w-full rounded-lg bg-verde-acento py-3 text-center font-medium text-background transition-opacity hover:opacity-90"
-        >
-          + Crear partido
-        </Link>
-      ) : (
-        <div className="grid gap-2" style={{ gridTemplateColumns: "3fr 1fr" }}>
-          {puedeCrear ? (
-            <Link
-              href={`/partidos/nuevo?club=${club.id}`}
-              className="rounded-lg bg-verde-acento py-3 text-center font-medium text-background transition-opacity hover:opacity-90"
-            >
-              + Armar otro partido
-            </Link>
-          ) : (
-            <div className="rounded-lg border border-dashed border-black/20 px-3 py-2.5 text-center text-xs leading-tight opacity-70">
-              Ya tenés 2 fechas en el muro. Cargá el resultado de una que ya se
-              jugó (o suspendela) para armar otra.
-            </div>
-          )}
-          <Link
-            href="/partidos/nuevo"
-            className="flex items-center justify-center rounded-lg border border-black/15 px-1 py-2 text-center text-xs font-medium leading-tight transition-colors hover:bg-black/5"
-          >
-            ➕ Crear otro Club
-          </Link>
         </div>
       )}
     </main>
