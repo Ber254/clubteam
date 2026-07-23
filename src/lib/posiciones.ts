@@ -9,6 +9,18 @@ export const POSICIONES = [
 
 export type Posicion = (typeof POSICIONES)[number];
 
+// Ícono por rol. Vive acá (módulo neutral, sin "use client") para que lo
+// puedan usar TANTO server components (convocatoria, resumen) COMO client
+// components (cards, armar equipos). Si estuviera en un módulo "use client",
+// al importarlo desde un server component se recibiría una referencia stub
+// y el ícono saldría vacío.
+export const ICONOS_ROL: Record<string, string> = {
+  Arquero: "🧤",
+  Defensa: "🛡️",
+  Ataque: "⚽",
+  "Donde sea": "🔄",
+};
+
 // "Donde sea" se muestra con una frase futbolera distinta en cada iteración
 // del flujo. El valor guardado en la DB es siempre el canónico "Donde sea";
 // esto es solo la etiqueta visible.

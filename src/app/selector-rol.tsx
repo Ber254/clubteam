@@ -1,14 +1,11 @@
 "use client";
 
 import { useMemo } from "react";
-import { POSICIONES, fraseDondeSea } from "@/lib/posiciones";
+import { POSICIONES, fraseDondeSea, ICONOS_ROL } from "@/lib/posiciones";
 
-export const ICONOS_ROL: Record<string, string> = {
-  Arquero: "🧤",
-  Defensa: "🛡️",
-  Ataque: "⚽",
-  "Donde sea": "🔄",
-};
+// Re-export para no romper los imports existentes desde componentes client.
+// La fuente real vive en @/lib/posiciones (módulo neutral, server + client).
+export { ICONOS_ROL };
 
 // Cards de rol con ícono. "Donde sea" rota su etiqueta (frase futbolera)
 // pero siempre guarda el valor canónico "Donde sea".
