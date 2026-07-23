@@ -6,6 +6,7 @@ import { POSICIONES } from "@/lib/posiciones";
 import { ICONOS_ROL } from "@/app/selector-rol";
 import { BotonInvitar } from "./boton-invitar";
 import { ResumenPartido } from "./resumen-partido";
+import { BajarJugador } from "./bajar-jugador";
 
 type Anotado = {
   jugador_id: string;
@@ -233,9 +234,23 @@ export default async function PartidoPage({
                 </p>
                 <div className="divide-y divide-black/10 rounded-lg border border-black/10 bg-white">
                   {gente.map((a) => (
-                    <p key={a.jugador_id} className="px-3 py-2 font-medium">
-                      {a.jugadores?.nombre ?? "Jugador"}
-                    </p>
+                    <div
+                      key={a.jugador_id}
+                      className="flex items-center justify-between gap-2 px-3 py-2"
+                    >
+                      <span className="min-w-0 truncate font-medium">
+                        {a.jugadores?.nombre ?? "Jugador"}
+                        {a.jugador_id === partido.creado_por && (
+                          <span className="ml-1.5 rounded bg-verde-acento/10 px-1.5 py-0.5 text-[10px] font-medium text-verde-acento">
+                            organizador
+                          </span>
+                        )}
+                      </span>
+                      <BajarJugador
+                        partidoId={partido.id}
+                        jugadorId={a.jugador_id}
+                      />
+                    </div>
                   ))}
                 </div>
               </div>
