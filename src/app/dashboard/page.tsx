@@ -5,6 +5,7 @@ import { formatFecha } from "@/lib/fechas";
 import { TrapoClub } from "./trapo-club";
 import { OnboardingModal } from "./onboarding-modal";
 import { TvMuro } from "./tv-muro";
+import { SelectorClub } from "./selector-club";
 
 type ClubRow = { id: string; nombre: string } | null;
 type Resultado = {
@@ -30,7 +31,14 @@ type ComentarioRow = {
 // El muro del club: lo primero que ve el usuario al entrar.
 // Sin club todavía => TV sin partido + "Crear partido" (el club nace solo
 // con los que se anoten a ese primer partido).
-export default async function DashboardPage() {
+// Con ?club=<id> se muestra el muro de ESE club (si es miembro); si no,
+// el más reciente.
+export default async function DashboardPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ club?: string }>;
+}) {
+  const { club: clubPedido } = await searchParams;
   const supabase = await createClient();
 
   const {
@@ -44,16 +52,23 @@ export default async function DashboardPage() {
     .eq("id", user.id)
     .single();
 
-  // ¿Ya pertenece a algún club?
+  // Todos los clubes del usuario (el más reciente primero).
   const { data: membresias } = await supabase
     .from("membresias")
     .select("grupo_id, grupos(id, nombre)")
     .eq("jugador_id", user.id)
     .order("fecha_ingreso", { ascending: false })
-    .limit(1)
     .returns<{ grupo_id: string; grupos: ClubRow }[]>();
 
-  const club = membresias?.[0]?.grupos ?? null;
+  const clubes = (membresias ?? [])
+    .map((m) => m.grupos)
+    .filter((g): g is NonNullable<ClubRow> => g !== null);
+
+  // Solo puede elegir clubes de los que es miembro (la lista ya está filtrada).
+  const club =
+    (clubPedido ? clubes.find((c) => c.id === clubPedido) : null) ??
+    clubes[0] ??
+    null;
 
   // Partidos planificados del club (sin jugados ni suspendidos)
   const { data: partidos } = club
@@ -143,6 +158,11 @@ export default async function DashboardPage() {
         </form>
       </div>
 
+      {/* Selector de club: solo si el usuario está en más de uno */}
+      {clubes.length > 1 && (
+        <SelectorClub clubes={clubes} actualId={club?.id ?? ""} />
+      )}
+
       {/* Trapo con el nombre del club (editable si ya existe) */}
       <div className="text-center">
         <TrapoClub clubId={club?.id ?? null} nombreInicial={club?.nombre ?? "Tu club"} />
@@ -215,7 +235,7 @@ export default async function DashboardPage() {
       {tvs.length === 0
         ? club && (
             <Link
-              href="/partidos/nuevo"
+              href="/clubes/nuevo"
               className="block w-full rounded-lg border border-black/15 px-3 py-2.5 text-center text-sm font-medium transition-colors hover:bg-black/5"
             >
               ➕ Crear otro Club
@@ -237,7 +257,7 @@ export default async function DashboardPage() {
                 </div>
               )}
               <Link
-                href="/partidos/nuevo"
+                href="/clubes/nuevo"
                 className="flex items-center justify-center rounded-lg border border-black/15 px-1 py-2 text-center text-xs font-medium leading-tight transition-colors hover:bg-black/5"
               >
                 ➕ Crear otro Club
