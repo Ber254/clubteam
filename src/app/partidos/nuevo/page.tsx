@@ -1,6 +1,6 @@
 "use client";
 
-import { Suspense, useState } from "react";
+import { Suspense, useEffect, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/client";
@@ -24,13 +24,27 @@ function NuevoPartidoForm() {
   const clubExistente = useSearchParams().get("club");
 
   const [fecha, setFecha] = useState("");
-  const [hora, setHora] = useState("20:00");
+  const [hora, setHora] = useState("");
+  // Hoy en formato yyyy-mm-dd: default de la fecha y tope mínimo del
+  // calendario (los días pasados quedan grisados y no se pueden elegir).
+  const [hoy, setHoy] = useState("");
   const [lugar, setLugar] = useState("");
   const [minimo, setMinimo] = useState(2);
   const [juega, setJuega] = useState(true);
   const [rol, setRol] = useState("Donde sea");
   const [enviando, setEnviando] = useState(false);
   const [error, setError] = useState("");
+
+  // Se calcula en el cliente (no en el render del server) para no mezclar la
+  // hora del servidor con la local y evitar un mismatch de hidratación.
+  useEffect(() => {
+    const d = new Date();
+    const p = (n: number) => String(n).padStart(2, "0");
+    const dia = `${d.getFullYear()}-${p(d.getMonth() + 1)}-${p(d.getDate())}`;
+    setHoy(dia);
+    setFecha(dia);
+    setHora(`${p(d.getHours())}:${p(d.getMinutes())}`);
+  }, []);
 
   async function crear(e: React.FormEvent) {
     e.preventDefault();
@@ -114,6 +128,7 @@ function NuevoPartidoForm() {
             <input
               type="date"
               required
+              min={hoy}
               value={fecha}
               onChange={(e) => setFecha(e.target.value)}
               className="w-full rounded-lg border border-black/15 bg-blanco-cancha px-3 py-3 outline-none focus:border-verde-acento"
