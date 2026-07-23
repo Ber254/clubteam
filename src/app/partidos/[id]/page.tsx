@@ -229,8 +229,11 @@ export default async function PartidoPage({
             )}
             {porRol.map(({ rol, gente }) => (
               <div key={rol}>
-                <p className="mb-1 text-xs font-semibold uppercase opacity-60">
-                  {ICONOS_ROL[rol]} {rol} ({gente.length})
+                <p className="mb-1 flex items-center gap-1.5">
+                  <span className="text-base leading-none">{ICONOS_ROL[rol]}</span>
+                  <span className="text-xs font-semibold uppercase opacity-60">
+                    {rol} ({gente.length})
+                  </span>
                 </p>
                 <div className="divide-y divide-black/10 rounded-lg border border-black/10 bg-white">
                   {gente.map((a) => (
